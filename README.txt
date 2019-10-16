@@ -6,7 +6,9 @@ and JavaScript.
 
 2. ROADMAP
 
-[ ] Authorization
+[ ] Gateway
+	[ ] Authorization
+	[ ] Recognize all payload types
 [ ] Expose Discord's REST API through simple method calls
 	[ ] Channel endpoins
 	[ ] Guild endpoints
@@ -15,9 +17,6 @@ and JavaScript.
 	[ ] Emoji endpoints
 	[ ] Voice endpoints
 	[ ] Audit log endpoints
-[ ] Gateway
-	[ ] Recognize all payload types
-	[ ] ???
 [ ] Caching
 	[ ] ???
 [ ] ???
