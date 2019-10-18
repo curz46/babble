@@ -1,3 +1,8 @@
 [submodule "vendor/curl"]
 	path = vendor/curl
 	url = git@github.com:curl/curl.git
+	ignore = dirty
+[submodule "vendor/libuwsc"]
+	path = vendor/libuwsc
+	url = git@github.com:zhaojh329/libuwsc.git
+	ignore = dirty

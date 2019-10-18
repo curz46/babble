@@ -3,7 +3,8 @@
 
 #include <curl/curl.h>
 
-#include <routes.h>
+#include "routes.h"
+#include "gateway.h"
 
 size_t on_payload_received(void *ptr, size_t size, size_t nmemb, void *stream) {
 	printf("Received: %s\n", ptr);
@@ -27,8 +28,9 @@ int main() {
 	res = curl_easy_perform(curl);
 	
 	if (res == CURLE_OK) {
-		printf("OK!\n");
-		
+		long response_code = 0;
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+		printf("Response Code: %i\n", response_code);
 	} else {
 		printf("Error: %s", curl_easy_strerror(res));
 	}
