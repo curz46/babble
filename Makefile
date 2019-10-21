@@ -3,8 +3,13 @@ obj = $(patsubst src%,out%,$(src:.c=.o))
 dep = $(obj:.o=.d))
 exe = bin/babble
 
-override CFLAGS = -Ivendor/curl/include -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer -Ivendor/libev
-LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a -Lvendor/libuwsc/build/src -l:libuwsc.a -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm
+override CFLAGS = -Ivendor/curl/include \
+				  -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer \
+				  -Ivendor/libev
+LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a \
+		  -Lvendor/libev/.libs -l:libev.a \
+		  -Lvendor/libuwsc/build/src -l:libuwsc.a \
+		  -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm
 
 all: pre babble
 
@@ -44,7 +49,7 @@ libev:
 .PHONY: libuwsc
 libuwsc:
 	cd vendor/libuwsc && mkdir -p build
-	cd vendor/libuwsc/build && cmake ..
+	cd vendor/libuwsc/build && CMAKE_INCLUDE_PATH="../../libev" CMAKE_LIBRARY_PATH="../../libev/.libs" cmake ..
 	cd vendor/libuwsc/build && make
 
 .PHONY: clean
