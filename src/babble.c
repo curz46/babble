@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 #include <curl/curl.h>
+#include <nxjson.h>
+#include <uwsc.h>
+#include <ev.h>
 
 #include "routes.h"
 #include "gateway.h"
@@ -36,12 +39,9 @@ size_t on_receive(char* data, size_t size, size_t nmemb, char** content) {
 }
 
 int main() {
-	CURL *curl;
-	CURLcode result;
-
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 
-	curl = curl_easy_init();
+	const CURL* curl = curl_easy_init();
 	if (!curl) {
 		printf("Failed to initialised curl!");
 		exit(1);
@@ -53,7 +53,7 @@ int main() {
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, on_receive);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 
-	result = curl_easy_perform(curl);
+	const CURLcode result = curl_easy_perform(curl);
 
 	if (result == CURLE_OK) {
 		long response_code = 0;
@@ -67,5 +67,23 @@ int main() {
 
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();
+	
+	const nx_json* json = nx_json_parse(data, 0);
+	if (!json) {
+		fprintf(stderr, "Failed to parse JSON from GATEWAY_GET response");
+		exit(1);
+	}
+
+	const char* url = nx_json_get(json, "url")->text_value;
+	printf("URL: %s\n", url);
+
+	printf("Attempting WS connection...\n");
+	struct uwsc_client* client = gateway_open_connection(url);
+	// Blocking loop
+	gateway_init_loop(client);
+	free(client);
+
+	printf("Exiting...\n");
+
 	return 0;
 }
