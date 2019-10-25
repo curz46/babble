@@ -2,6 +2,8 @@
 
 #include <uwsc.h>
 
+extern const int GATEWAY_VERSION;
+
 extern const int OP_DISPATCH;
 extern const int OP_HEARTBEAT;
 extern const int OP_IDENTIFY;
