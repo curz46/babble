@@ -1,14 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <uwsc.h>
+#include <pthread.h>
 #include <jansson.h>
 
+#include "gateway.h"
+#include "payload.h"
+
 #define EV_LOOP EV_DEFAULT
+
+typedef struct {
+    struct uwsc_client* client;   
+    int heartbeat_interval;
+    int sequence_number;
+} client_context;
+
+client_context context;
+
+void do_heartbeat(void* arg) {
+    printf("Heartbeat starting...\n");
+    while (1) {
+        printf("Making heartbeat\n");
+        json_t* payload = make_heartbeat(context.sequence_number);
+        printf("Made payload...\n");
+        json_t* wrapped = wrap_payload(10, payload);
+        printf("Wrapped payload...\n");
+        char* data      = json_dumps(wrapped, 0);
+        printf("Dumped data...\n");
+        printf("Sending heartbeat...\n");
+        context.client->send_ex(context.client, UWSC_OP_TEXT, 2, data);
+        printf("Sent heartbeat\n");
+        printf("usleep: %i\n", context.heartbeat_interval);
+        usleep(context.heartbeat_interval * 1000);
+    }
+}
 
 void handle_hello(json_t* json) {
     int interval = json_integer_value( json_object_get(json, "heartbeat_interval") );
     printf("handle_hello: interval = %i\n", interval);
+
+    context.heartbeat_interval = interval;
+    context.sequence_number    = 0;
+
+    pthread_t *thread;
+    pthread_create(&thread, NULL, do_heartbeat, NULL);
 }
 
 // array of handler functions
@@ -78,9 +115,11 @@ void gateway_onmessage(struct uwsc_client* client,
 }   
 
 void gateway_init_loop(struct uwsc_client* client) {
+    context.client = client;
+    
     client->onopen    = gateway_onopen;
     client->onmessage = gateway_onmessage;
-
+    
     // ??
     struct ev_signal signal_watcher;
     ev_signal_init(&signal_watcher, NULL, SIGINT);
