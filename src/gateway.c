@@ -27,6 +27,7 @@ typedef struct {
     struct uwsc_client* client;   
     int heartbeat_interval;
     int sequence_number;
+    long last_heartbeat;
 } client_context;
 
 client_context context;
@@ -37,6 +38,10 @@ void send_heartbeat() {
     char* data      = json_dumps(wrapped, 0);
     context.client->send(context.client, data, strlen(data), UWSC_OP_TEXT);
     printf("Sent heartbeat\n");
+
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
+    context.last_heartbeat = spec.tv_nsec / 1.0e6; 
 }
 
 void do_heartbeat(void* arg) {
@@ -45,6 +50,10 @@ void do_heartbeat(void* arg) {
         usleep(context.heartbeat_interval * 1000);
         send_heartbeat();
     }
+}
+
+void handle_heartbeat(json_t* json) {
+    send_heartbeat();
 }
 
 void handle_hello(json_t* json) {
@@ -66,9 +75,17 @@ void handle_hello(json_t* json) {
     printf("Sent identify\n");
 }
 
+void handle_heartbeat_ack(json_t* json) {
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
+    long now = round(spec.tv_nsec / 1.0e6);
+    printf("Received HEARTBEAT_ACK: %ldms\n", now - context.last_heartbeat);
+}
+
 // array of handler functions
 const void (*handlers[]) (json_t* json) = {
     NULL,
+    handle_heartbeat, // 1
     NULL,
     NULL,
     NULL,
@@ -77,14 +94,15 @@ const void (*handlers[]) (json_t* json) = {
     NULL,
     NULL,
     NULL,
-    NULL,
-    handle_hello // 10
+    handle_hello, // 10,
+    handle_heartbeat_ack // 11
 };
 
 void handle(char* data) {
     json_t* json = json_loads(data, 0, NULL);
     
     int opcode = json_integer_value( json_object_get(json, "op") );
+    int sequence_number = json_integer_value( json_object_get("json", "s") );
     json_t* payload = json_object_get(json, "d");
     
     int length = sizeof(handlers) / sizeof(handlers[0]);
@@ -98,6 +116,7 @@ void handle(char* data) {
         return;
     }
 
+    context.sequence_number = sequence_number;
     handler(payload);
 }
 
