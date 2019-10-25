@@ -29,7 +29,7 @@ size_t on_receive(char* data, size_t size, size_t nmemb, char** content) {
     char* result;
     result = concat(*content, data);
     if (result == NULL) {
-        fprintf(stderr, "Couldn't concat data to content.");
+        printf("ERROR: Couldn't concat data to content.");
         exit(1);
     }
     *content = result;
@@ -70,7 +70,7 @@ int main() {
     
     const nx_json* json = nx_json_parse(data, 0);
     if (!json) {
-        fprintf(stderr, "Failed to parse JSON from GATEWAY_GET response");
+        printf("ERROR: Failed to parse JSON from GATEWAY_GET response");
         exit(1);
     }
 
