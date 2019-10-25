@@ -11,6 +11,18 @@
 
 #define EV_LOOP EV_DEFAULT
 
+const int OP_DISPATCH = 0;
+const int OP_HEARTBEAT = 1;
+const int OP_IDENTIFY = 2;
+const int OP_STATUS_UPDATE = 3;
+const int OP_VOICE_STATUS_UPDATE = 4;
+const int OP_RESUME = 6;
+const int OP_RECONNECT = 7;
+const int OP_REQUEST_GUILD_MEMBERS = 8;
+const int OP_INVALID_SESSION = 9;
+const int OP_HELLO = 10;
+const int OP_HEARTBEAT_ACK = 11;
+
 typedef struct {
     struct uwsc_client* client;   
     int heartbeat_interval;
@@ -20,14 +32,9 @@ typedef struct {
 client_context context;
 
 void send_heartbeat() {
-    printf("Making heartbeat\n");
     json_t* payload = make_heartbeat(context.sequence_number);
-    printf("Made payload...\n");
-    json_t* wrapped = wrap_payload(1, payload);
-    printf("Wrapped payload...\n");
+    json_t* wrapped = wrap_payload(OP_HEARTBEAT, payload);
     char* data      = json_dumps(wrapped, 0);
-    printf("Dumped data...\n");
-    printf("Sending heartbeat...\n");
     context.client->send(context.client, data, strlen(data), UWSC_OP_TEXT);
     printf("Sent heartbeat\n");
 }
@@ -35,7 +42,6 @@ void send_heartbeat() {
 void do_heartbeat(void* arg) {
     printf("Heartbeat starting...\n");
     while (1) {
-        printf("usleep: %i\n", context.heartbeat_interval);
         usleep(context.heartbeat_interval * 1000);
         send_heartbeat();
     }
@@ -43,7 +49,6 @@ void do_heartbeat(void* arg) {
 
 void handle_hello(json_t* json) {
     int interval = json_integer_value( json_object_get(json, "heartbeat_interval") );
-    printf("handle_hello: interval = %i\n", interval);
 
     context.heartbeat_interval = interval;
     context.sequence_number    = 0;
@@ -55,9 +60,8 @@ void handle_hello(json_t* json) {
     char* token = getenv("TOKEN");
     printf("Identifying with token: %s\n", token);
     json_t* identify_payload = make_identify( getenv("TOKEN") );
-    json_t* wrapped = wrap_payload(2, identify_payload);
+    json_t* wrapped = wrap_payload(OP_IDENTIFY, identify_payload);
     char* data      = json_dumps(wrapped, 0);
-    printf("Sending identify: %s\n", data);
     context.client->send(context.client, data, strlen(data), UWSC_OP_TEXT);
     printf("Sent identify\n");
 }
