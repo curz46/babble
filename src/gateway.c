@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <uwsc.h>
@@ -59,8 +60,7 @@ void do_heartbeat(void* arg) {
     }
 }
 
-// Is this necessarily READY? Need to double check...
-void handle_dispatch(json_t* json) { // "READY"
+void handle_ready(json_t* json) {
     int version = json_integer_value( json_object_get(json, "v") );
     if (version != GATEWAY_VERSION) {
         printf("ERROR: Unsupported gateway version (%i)", version);
@@ -78,11 +78,25 @@ void handle_dispatch(json_t* json) { // "READY"
     printf("Received READY event with session id %s\n", session_id);
 }
 
-void handle_heartbeat(json_t* json) {
+// Is this necessarily READY? Need to double check...
+void handle_dispatch(char* event, json_t* json) { // "READY"
+    if (event == NULL) {
+        printf("ERROR: DISPATCH event == null\n");
+        return;
+    }
+
+    if (strcmp(event, "READY") == 0) {
+        handle_ready(json);
+    } else {
+        printf("ERROR: Unrecognised DISPATCH event \"%s\"\n", event);
+    }
+}
+
+void handle_heartbeat(char* event, json_t* json) {
     send_heartbeat();
 }
 
-void handle_hello(json_t* json) {
+void handle_hello(char* event, json_t* json) {
     int interval = json_integer_value( json_object_get(json, "heartbeat_interval") );
 
     context.heartbeat_interval = interval;
@@ -101,7 +115,7 @@ void handle_hello(json_t* json) {
     printf("Sent identify\n");
 }
 
-void handle_heartbeat_ack(json_t* json) {
+void handle_heartbeat_ack(char* event, json_t* json) {
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     long now = round(spec.tv_nsec / 1.0e6);
@@ -130,7 +144,17 @@ void handle(char* data) {
     int opcode = json_integer_value( json_object_get(json, "op") );
     int sequence_number = json_integer_value( json_object_get("json", "s") );
     json_t* payload = json_object_get(json, "d");
+    char* event = json_string_value( json_object_get(json, "t") );
     
+    // TODO: It appears that whenever this happens the JSON parser has failed.
+    if (opcode == OP_DISPATCH && event == NULL) {
+        //printf("event == null data:\n %s\n", data);
+        printf("JSON parsing failed: \n");
+        printf("json == null: %s\n", json == NULL ? "true" : "false");
+        printf("data: \n%s\n", data);
+        return;
+    }
+
     int length = sizeof(handlers) / sizeof(handlers[0]);
     if (opcode < 0 || opcode >= length) {
         printf("ERROR: Unrecognised opcode: %i\n", opcode);
@@ -143,7 +167,7 @@ void handle(char* data) {
     }
 
     context.sequence_number = sequence_number;
-    handler(payload);
+    handler(event, payload);
 }
 
 struct uwsc_client* gateway_open_connection(char* url) {
@@ -159,20 +183,13 @@ struct uwsc_client* gateway_open_connection(char* url) {
     return client;
 }
 
-void gateway_onopen(struct uwsc_client* client) {
-    printf("onopen\n");
-}
+void gateway_onopen(struct uwsc_client* client) {}
 
 void gateway_onmessage(struct uwsc_client* client,
                        void*   data,
                        size_t length,
                        bool   binary) {
-    printf("onmessage:\n");
-    printf("binary: %i\n", binary);
-    if (binary) {
-        // ...
-    } else {
-        printf("string: %s\n", data);
+    if (! binary) {
         handle(data);
     }
 }   
