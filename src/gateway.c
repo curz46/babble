@@ -19,21 +19,25 @@ typedef struct {
 
 client_context context;
 
+void send_heartbeat() {
+    printf("Making heartbeat\n");
+    json_t* payload = make_heartbeat(context.sequence_number);
+    printf("Made payload...\n");
+    json_t* wrapped = wrap_payload(1, payload);
+    printf("Wrapped payload...\n");
+    char* data      = json_dumps(wrapped, 0);
+    printf("Dumped data...\n");
+    printf("Sending heartbeat...\n");
+    context.client->send(context.client, data, strlen(data), UWSC_OP_TEXT);
+    printf("Sent heartbeat\n");
+}
+
 void do_heartbeat(void* arg) {
     printf("Heartbeat starting...\n");
     while (1) {
-        printf("Making heartbeat\n");
-        json_t* payload = make_heartbeat(context.sequence_number);
-        printf("Made payload...\n");
-        json_t* wrapped = wrap_payload(10, payload);
-        printf("Wrapped payload...\n");
-        char* data      = json_dumps(wrapped, 0);
-        printf("Dumped data...\n");
-        printf("Sending heartbeat...\n");
-        context.client->send_ex(context.client, UWSC_OP_TEXT, 2, data);
-        printf("Sent heartbeat\n");
         printf("usleep: %i\n", context.heartbeat_interval);
         usleep(context.heartbeat_interval * 1000);
+        send_heartbeat();
     }
 }
 
@@ -44,8 +48,18 @@ void handle_hello(json_t* json) {
     context.heartbeat_interval = interval;
     context.sequence_number    = 0;
 
+    send_heartbeat();
     pthread_t *thread;
     pthread_create(&thread, NULL, do_heartbeat, NULL);
+
+    char* token = getenv("TOKEN");
+    printf("Identifying with token: %s\n", token);
+    json_t* identify_payload = make_identify( getenv("TOKEN") );
+    json_t* wrapped = wrap_payload(2, identify_payload);
+    char* data      = json_dumps(wrapped, 0);
+    printf("Sending identify: %s\n", data);
+    context.client->send(context.client, data, strlen(data), UWSC_OP_TEXT);
+    printf("Sent identify\n");
 }
 
 // array of handler functions
