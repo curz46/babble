@@ -22,3 +22,13 @@ and JavaScript.
 - [ ] Caching
 	- [ ] ???
 - [ ] ???
+
+### 3. How do I build it?
+
+```
+git submodules update --init --recursive
+make vendor # only needed first build - just run 'make' to compile changes
+make
+# You can then run it like this
+./bin/babble
+```
