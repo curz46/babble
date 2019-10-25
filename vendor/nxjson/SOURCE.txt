@@ -1,2 +1,0 @@
-Source: https://bitbucket.org/yarosla/nxjson/src/default/
-All credit goes to authors

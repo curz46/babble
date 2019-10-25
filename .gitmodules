@@ -10,3 +10,6 @@
 	path = vendor/libuwsc
 	url = git@github.com:zhaojh329/libuwsc.git
 	ignore = dirty
+[submodule "vendor/jansson"]
+	path = vendor/jansson
+	url = git@github.com:akheron/jansson.git

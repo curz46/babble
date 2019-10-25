@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include <curl/curl.h>
-#include <nxjson.h>
+#include <jansson.h>
 #include <uwsc.h>
 #include <ev.h>
 
@@ -68,13 +68,16 @@ int main() {
     curl_easy_cleanup(curl);
     curl_global_cleanup();
     
-    const nx_json* json = nx_json_parse(data, 0);
-    if (!json) {
+    json_error_t error;
+    json_t* root = json_loads(data, 0, &error);
+
+    if (!root) {
         printf("ERROR: Failed to parse JSON from GATEWAY_GET response");
         exit(1);
     }
 
-    const char* url = nx_json_get(json, "url")->text_value;
+    char* url = json_string_value( json_object_get(root, "url") );
+
     printf("URL: %s\n", url);
 
     printf("Attempting WS connection...\n");

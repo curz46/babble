@@ -6,12 +6,13 @@ exe = bin/babble
 override CFLAGS = -Ivendor/curl/include \
 				  -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer \
 				  -Ivendor/libev \
-				  -Ivendor/nxjson
+				  -Ivendor/jansson/src
 LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a \
 		  -Lvendor/libev/.libs -l:libev.a \
 		  -Lvendor/libuwsc/build/src -l:libuwsc.a \
+		  -Lvendor/jansson/src/.libs -l:libjansson.a \
 		  -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm
-SOURCE_EXT = vendor/nxjson/nxjson.c
+SOURCE_EXT =
 
 all: pre babble
 
@@ -33,7 +34,7 @@ out/%.o: src/%.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 .PHONY: vendor
-vendor: curl libev libuwsc nxjson
+vendor: curl libev libuwsc jansson
 
 .PHONY: curl
 curl:
@@ -54,9 +55,11 @@ libuwsc:
 	cd vendor/libuwsc/build && CMAKE_INCLUDE_PATH="../../libev" CMAKE_LIBRARY_PATH="../../libev/.libs" cmake ..
 	cd vendor/libuwsc/build && make
 
-.PHONY: nxjson
-nxjson:
-	cd vendor/nxjson && make
+.PHONY: jansson
+jansson:
+	cd vendor/jansson && autoreconf -i
+	cd vendor/jansson && ./configure
+	cd vendor/jansson && make
 
 .PHONY: clean
 clean:

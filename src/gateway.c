@@ -2,17 +2,17 @@
 #include <stdlib.h>
 
 #include <uwsc.h>
-#include <nxjson.h>
+#include <jansson.h>
 
 #define EV_LOOP EV_DEFAULT
 
-void handle_hello(const nx_json* json) {
-    int interval = nx_json_get(json, "heartbeat_interval")->int_value;
+void handle_hello(json_t* json) {
+    int interval = json_integer_value( json_object_get(json, "heartbeat_interval") );
     printf("handle_hello: interval = %i\n", interval);
 }
 
 // array of handler functions
-const void (*handlers[]) (const nx_json* json) = {
+const void (*handlers[]) (json_t* json) = {
     NULL,
     NULL,
     NULL,
@@ -27,10 +27,10 @@ const void (*handlers[]) (const nx_json* json) = {
 };
 
 void handle(char* data) {
-    const nx_json* json = nx_json_parse(data, 0);
+    json_t* json = json_loads(data, 0, NULL);
     
-    int opcode      = nx_json_get(json, "op")->int_value;
-    const nx_json* payload = nx_json_get(json, "d");
+    int opcode = json_integer_value( json_object_get(json, "op") );
+    json_t* payload = json_object_get(json, "d");
     
     int length = sizeof(handlers) / sizeof(handlers[0]);
     if (opcode < 0 || opcode >= length) {
