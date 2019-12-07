@@ -3,7 +3,8 @@ obj = $(patsubst src%,out%,$(src:.c=.o))
 dep = $(obj:.o=.d))
 exe = bin/babble
 
-override CFLAGS = -Ivendor/curl/include \
+override CFLAGS = -g -std=gnu99
+INCLUDE = -Ivendor/curl/include \
 				  -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer \
 				  -Ivendor/libev \
 				  -Ivendor/jansson/src
@@ -11,7 +12,7 @@ LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a \
 		  -Lvendor/libev/.libs -l:libev.a \
 		  -Lvendor/libuwsc/build/src -l:libuwsc.a \
 		  -Lvendor/jansson/src/.libs -l:libjansson.a \
-		  -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm
+		  -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm -lnghttp2 -lidn2 -lrtmp -lpsl -lbrotlidec
 SOURCE_EXT =
 
 all: pre babble
@@ -22,7 +23,7 @@ pre:
 
 babble: $(obj) 
 	@echo "Compiling babble..."
-	$(CC) -o $(exe) $(SOURCE_EXT) $^ $(LDFLAGS)
+	gcc $(CFLAGS) -o $(exe) $(SOURCE_EXT) $^ $(LDFLAGS)
 	@echo "Done"
 
 -include $(dep)
@@ -31,7 +32,7 @@ babble: $(obj)
 	@$(CPP) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
 
 out/%.o: src/%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	gcc -g $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 .PHONY: vendor
 vendor: curl libev libuwsc jansson
