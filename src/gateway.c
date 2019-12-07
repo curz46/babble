@@ -190,7 +190,10 @@ void gateway_onmessage(struct uwsc_client* client,
                        size_t length,
                        bool   binary) {
     if (! binary) {
-        handle(data);
+        char* content   = (char*) malloc(sizeof(char) * length + 1);
+        memcpy(content, data, length);
+        content[length] = '\0';
+        handle(content);
     }
 }   
 
