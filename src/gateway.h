@@ -18,4 +18,4 @@ extern const int OP_HEARTBEAT_ACK;
 
 struct client_context;
 
-struct uwsc_client* open_connection(char* url);
+struct uwsc_client* gateway_open_connection(char* url);
