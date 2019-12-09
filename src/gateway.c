@@ -9,6 +9,7 @@
 
 #include "gateway.h"
 #include "payload.h"
+#include "entities.h"
 
 #define EV_LOOP EV_DEFAULT
 
@@ -78,6 +79,15 @@ void handle_ready(json_t* json) {
     printf("Received READY event with session id %s\n", session_id);
 }
 
+void handle_guild_create(json_t* json) {
+    Guild* guild = parse_guild(json);
+    printf("guild.id: %s\n", guild->id);
+    printf("guild.name: %s\n", guild->name);
+    printf("guild.icon: %s\n", guild->icon);
+    printf("guild.splash: %s\n", guild->splash);
+    printf("guild.owner: %i\n", guild->owner);
+}
+
 // Is this necessarily READY? Need to double check...
 void handle_dispatch(char* event, json_t* json) { // "READY"
     if (event == NULL) {
@@ -87,6 +97,8 @@ void handle_dispatch(char* event, json_t* json) { // "READY"
 
     if (strcmp(event, "READY") == 0) {
         handle_ready(json);
+    } else if (strcmp(event, "GUILD_CREATE") == 0) {
+        handle_guild_create(json);
     } else {
         printf("ERROR: Unrecognised DISPATCH event \"%s\"\n", event);
     }
@@ -108,7 +120,7 @@ void handle_hello(char* event, json_t* json) {
 
     char* token = getenv("TOKEN");
     printf("Identifying with token: %s\n", token);
-    json_t* identify_payload = make_identify( getenv("TOKEN") );
+    json_t* identify_payload = make_identify(token);
     json_t* wrapped = wrap_payload(OP_IDENTIFY, identify_payload);
     char* data      = json_dumps(wrapped, 0);
     context.client->send(context.client, data, strlen(data), UWSC_OP_TEXT);

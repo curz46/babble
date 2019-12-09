@@ -1,286 +1,239 @@
 #include <stdbool.h>
 
-typedef struct {
-    long id;
-    char* username;
-    char* discriminator;
-    char* avatar;
-    bool bot;
-    bool system;
-    bool mfa_enabled;
-    char* locale;
-    bool verified;
-    char* email;
-    int flags;
-    int premium_type;
-} User;
+#include <jansson.h>
+
+#include "entities.h"
+
+typedef enum {
+    // Primitives
+    BOOLEAN,
+    INT,
+    LONG,
+    STRING,
+    // Primitive Arrays,
+    BOOLEAN_ARRAY,
+    INT_ARRAY,
+    LONG_ARRAY,
+    STRING_ARRAY,
+    // Objects
+    USER,
+    ROLE,
+    EMOJI,
+    ACTIVITY_TIMESTAMPS,
+    ACTIVITY_PARTY,
+    ACTIVITY_ASSETS,
+    ACTIVITY_SECRETS,
+    ACTIVITY,
+    CLIENT_STATUS,
+    PRESENCE,
+    OVERWRITE,
+    CHANNEL,
+    MEMBER,
+    VOICE_STATE,
+    GUILD,
+    INVITE,
+    VOICE_REGION,
+    WEBHOOK,
+    AUDIT_LOG_CHANGE,
+    AUDIT_LOG_ENTRY_INFO,
+    AUDIT_LOG_ENTRY,
+    ACCOUNT,
+    INTEGRATION,
+    AUDIT_LOG,
+    // Object Arrays
+    USER_ARRAY,
+    ROLE_ARRAY,
+    EMOJI_ARRAY,
+    ACTIVITY_TIMESTAMPS_ARRAY,
+    ACTIVITY_PARTY_ARRAY,
+    ACTIVITY_ASSETS_ARRAY,
+    ACTIVITY_SECRETS_ARRAY,
+    ACTIVITY_ARRAY,
+    CLIENT_STATUS_ARRAY,
+    PRESENCE_ARRAY,
+    OVERWRITE_ARRAY,
+    CHANNEL_ARRAY,
+    MEMBER_ARRAY,
+    VOICE_STATE_ARRAY,
+    GUILD_ARRAY,
+    INVITE_ARRAY,
+    VOICE_REGION_ARRAY,
+    WEBHOOK_ARRAY,
+    AUDIT_LOG_CHANGE_ARRAY,
+    AUDIT_LOG_ENTRY_INFO_ARRAY,
+    AUDIT_LOG_ENTRY_ARRAY,
+    ACCOUNT_ARRAY,
+    INTEGRATION_ARRAY,
+    AUDIT_LOG_ARRAY
+} AttributeType;
 
 typedef struct {
-    long id;
+    AttributeType type;
     char* name;
-    int color;
-    bool hoist;
-    int position;
-    int permissions;
-    bool managed;
-    bool mentionable;
-} Role;
+} Attribute;
 
-typedef struct {
-    long id;
-    char* name;
-    Role* roles;
-    int num_roles;
-    User* user; //creator
-    bool require_colons;
-    bool managed;
-    bool animated;
-} Emoji;
+int type_size(AttributeType type) {
+    switch (type) {
+        // Primitives
+        case BOOLEAN: return sizeof(bool);
+        case INT:     return sizeof(int);
+        case LONG:    return sizeof(long);
+        case STRING:  return sizeof(char*);
+        // Primitive Arrays
+        case BOOLEAN_ARRAY: return sizeof(void*) + sizeof(int);
+        case INT_ARRAY:     return sizeof(void*) + sizeof(int);
+        case LONG_ARRAY:    return sizeof(void*) + sizeof(int);
+        case STRING_ARRAY:  return sizeof(void*) + sizeof(int);
+        // Objects
+        case USER:
+        case ROLE:
+        case EMOJI:
+        case ACTIVITY_TIMESTAMPS:
+        case ACTIVITY_PARTY:
+        case ACTIVITY_ASSETS:
+        case ACTIVITY_SECRETS:
+        case ACTIVITY:
+        case CLIENT_STATUS:
+        case PRESENCE:
+        case OVERWRITE:
+        case CHANNEL:
+        case MEMBER:
+        case VOICE_STATE:
+        case GUILD:
+        case INVITE:
+        case VOICE_REGION:
+        case WEBHOOK:
+        case AUDIT_LOG_CHANGE:
+        case AUDIT_LOG_ENTRY_INFO:
+        case AUDIT_LOG_ENTRY:
+        case ACCOUNT:
+        case INTEGRATION:
+        case AUDIT_LOG:
+            return sizeof(void*);
+        // Arrays
+        case USER_ARRAY:
+        case ROLE_ARRAY:
+        case EMOJI_ARRAY:
+        case ACTIVITY_TIMESTAMPS_ARRAY:
+        case ACTIVITY_PARTY_ARRAY:
+        case ACTIVITY_ASSETS_ARRAY:
+        case ACTIVITY_SECRETS_ARRAY:
+        case ACTIVITY_ARRAY:
+        case CLIENT_STATUS_ARRAY:
+        case PRESENCE_ARRAY:
+        case OVERWRITE_ARRAY:
+        case CHANNEL_ARRAY:
+        case MEMBER_ARRAY:
+        case VOICE_STATE_ARRAY:
+        case GUILD_ARRAY:
+        case INVITE_ARRAY:
+        case VOICE_REGION_ARRAY:
+        case WEBHOOK_ARRAY:
+        case AUDIT_LOG_CHANGE_ARRAY:
+        case AUDIT_LOG_ENTRY_INFO_ARRAY:
+        case AUDIT_LOG_ENTRY_ARRAY:
+        case ACCOUNT_ARRAY:
+        case INTEGRATION_ARRAY:
+        case AUDIT_LOG_ARRAY:
+            // pointer field + num_ field
+            return sizeof(void*) + sizeof(int);
+    }
+    return -1;
+}
 
-typedef struct {
-    int start;
-    int end;
-} ActivityTimestamps;
+#define HANDLE(TYPE, C_TYPE, JSON_TYPE)                    \
+    TYPE: ; {                                              \
+        C_TYPE value = json_##JSON_TYPE##_value(property); \
+        *((C_TYPE*) field) = value; }                      \
+        break;
 
-typedef struct {
-    char* id;
-    int size[2]; // [current_size, max_size]
-} ActivityParty;
+#define HANDLE_ARRAY(TYPE, C_TYPE, JSON_TYPE)                      \
+    TYPE: ; {                                                      \
+        int length = json_array_size(property);                    \
+        C_TYPE* array = (C_TYPE*) malloc(sizeof(C_TYPE) * length); \
+        for (int i = 0; i < length; i++) {                         \
+            json_t* element = json_array_get(property, i);         \
+            C_TYPE value = json_##JSON_TYPE##_value(element);      \
+            array[i] = value;                                      \
+        }                                                          \
+        *((C_TYPE*) field) = array;                                \
+        *((C_TYPE*) (field + sizeof(void*))) = length; }           \
+        break;
 
-typedef struct {
-    char* large_image;
-    char* large_text;
-    char* small_image;
-    char* small_text;
-} ActivityAssets;
+void read_field(json_t* json, AttributeType type, char* name, void* field) {
+    json_t* property = json_object_get(json, name);
+    switch (type) {
+        //HANDLE(BOOLEAN, bool, boolean)
+        case BOOLEAN: ; {
+            bool value = json_boolean_value(property);
+            *((bool*) field) = value;
+            printf("Boolean: %i\n", value);
+        }
+        HANDLE(INT, int, integer)
+        HANDLE(LONG, long, long)
+        case STRING: ; {
+            if (json_is_null(property) || !json_is_string(property)) break;
+            char* value = json_string_value(property);
+            *((char**) field) = value;
+            break;
+        }
+    }
+}
 
-typedef struct {
-    char* join;
-    char* spectate;
-    char* match;
-} ActivitySecrets;
+Attribute GUILD_FIELDS[] = {
+    {STRING, "id"},
+    {STRING, "name"},
+    {STRING, "icon"},
+    {STRING, "splash"},
+    {BOOLEAN, "owner"},
+    {STRING, "owner_id"},
+    {INT, "permissions"},
+    {STRING, "region"},
+    {LONG, "afk_channel_id"},
+    {LONG, "afk_timeout"},
+    {BOOLEAN, "embed_enabled"},
+    {BOOLEAN, "embed_channel_id"},
+    {INT, "verification_level"},
+    {INT, "default_message_notifications"},
+    {INT, "explicit_content_filter"},
+    {ROLE_ARRAY, "roles"},
+    {EMOJI_ARRAY, "emojis"},
+    {STRING_ARRAY, "features"},
+    {INT, "mfa_level"},
+    {LONG, "application_id"},
+    {BOOLEAN, "widget_enabled"},
+    {LONG, "widget_channel_id"},
+    {LONG, "system_channel_id"},
+    {LONG, "joined_at"},
+    {BOOLEAN, "large"},
+    {BOOLEAN, "unavailable"},
+    {INT, "member_count"},
+    {VOICE_STATE_ARRAY, "voice_states"},
+    {MEMBER_ARRAY, "members"},
+    {CHANNEL_ARRAY, "channels"},
+    {PRESENCE_ARRAY, "presences"},
+    {INT, "max_presences"},
+    {INT, "max_members"},
+    {STRING, "vanity_url_code"},
+    {STRING, "description"},
+    {STRING, "banner"},
+    {INT, "premium_tier"},
+    {INT, "premium_subscription_count"},
+    {STRING, "preferrred_locale"}
+};
 
-typedef struct {
-    char* name;
-    int type;
-    char* url;
-    int created_at;
-    ActivityTimestamps* timestamps;
-    char* details;
-    char* state;
-    Emoji* emoji;
-    ActivityAssets* assets;
-    ActivitySecrets* secrets;
-    bool instance;
-    int flags;
-} Activity;
+Guild* parse_guild(json_t* json) {
+    Guild* guild = (Guild*) malloc(sizeof(Guild));
 
-typedef struct {
-    char* desktop;
-    char* mobile;
-    char* web;
-} ClientStatus;
+    int num_fields = sizeof(GUILD_FIELDS) / sizeof(GUILD_FIELDS[0]);
+    char* root      = (char*) guild;
+    int offset     = 0;
+    for (int i = 0; i < num_fields; i++) {
+        Attribute attr = GUILD_FIELDS[i];
+        void* field = (void*) (root + offset);
+        read_field(json, attr.type, attr.name, field);
+        offset += type_size(attr.type);
+    }
 
-typedef struct {
-    User* user;
-    Role* roles;
-    int num_roles;
-    Activity* game;
-    long guild_id;
-    char* status;
-    Activity* activities;
-    int num_activities;
-    ClientStatus* client_status;
-    long premium_since;
-    char* nick;
-} Presence;
-
-typedef struct {
-    long id;
-    char* type;
-    int allow;
-    int deny;
-} Overwrite;
-
-typedef struct {
-    long id;
-    int type;
-    long guild_id;
-    int position;
-    Overwrite* permission_overwrites;
-    int num_permission_overwrites;
-    char* name;
-    char* topic;
-    bool nsfw;
-    long last_message_id;
-    int bitrate;
-    int user_limit;
-    int rate_limit_per_user;
-    User* recipients;
-    int num_recipients;
-    char* icon;
-    long owner_id;
-    long application_id;
-    long parent_id;
-    long last_pin_timestamp;
-} Channel;
-
-typedef struct {
-    User* user;
-    char* nick;
-    long* roles;
-    int num_roles;
-    long joined_at;
-    long premium_since;
-    bool deaf;
-    bool mute;
-} Member;
-
-typedef struct {
-    long guild_id;
-    long channel_id;
-    long user_id;
-    Member* member;
-    char* session_id;
-    bool deaf;
-    bool mute;
-    bool self_deaf;
-    bool self_mute;
-    bool self_stream;
-    bool suppress;
-} VoiceState;
-
-typedef struct {
-    long id;
-    char* name;
-    char* icon;
-    char* splash;
-    bool owner;
-    long owner_id;
-    int permissions;
-    char* region;
-    long afk_channel_id;
-    long afk_timeout;
-    bool embed_enabled;
-    long embed_channel_id;
-    int verification_level;
-    int default_message_notifications;
-    int explicit_content_filter;
-    Role* roles;
-    int num_roles;
-    Emoji* emojis;
-    int num_emojis;
-    char** features;
-    int num_features;
-    int mfa_level;
-    long application_id;
-    bool widget_enabled;
-    long widget_channel_id;
-    long system_channel_id;
-    long joined_at;
-    bool large;
-    bool unavailable;
-    int member_count;
-    VoiceState* voice_states;
-    int num_voice_states;
-    Member* members;
-    int num_members;
-    Channel* channels;
-    int num_channels;
-    Presence* presences;
-    int num_presences;
-    int max_presences;
-    int max_members;
-    char* vanity_url_code;
-    char* description;
-    char* banner;
-    int premium_tier;
-    int premium_subscription_count;
-    char* preferred_locale;
-} Guild;
-
-typedef struct {
-    char* code;
-    Guild* guild;
-    Channel* channel;
-    User* target_user;
-    int target_user_type;
-    int approximate_presence_count;
-    int approximate_member_count;
-} Invite;
-
-typedef struct {
-    char* id;
-    char* name;
-    bool vip;
-    bool optimal;
-    bool deprecated;
-    bool custom;
-} VoiceRegion;
-
-typedef struct {
-    long id;
-    int type;
-    long guild_id;
-    long channel_id;
-    User* user;
-    char* name;
-    char* avatar;
-    char* token;
-} Webhook;
-
-typedef struct {
-    void* new_value;
-    void* old_value;
-    char* key;
-} AuditLogChange;
-
-typedef struct {
-    char* delete_member_days;
-    char* members_removed;
-    long channel_id;
-    long message_id;
-    char* count;
-    long id;
-    char* type;
-    char* role_name;
-} AuditLogEntryInfo;
-
-typedef struct {
-    char* target_id;
-    AuditLogChange* changes;
-    int num_changes;
-    long user_id;
-    long id;
-    int action_type;
-} AuditLogEntry;
-
-typedef struct {
-    char* id;
-    char* name;
-} Account;
-
-typedef struct {
-    long id;
-    char* name;
-    char* type;
-    bool enabled;
-    bool syncing;
-    long role_id;
-    int expire_behavior;
-    int expire_grace_period;
-    User* user;
-    Account* account;
-    long synced_at;
-} Integration;
-
-typedef struct {
-    Webhook* webhooks;
-    int num_webhooks;
-    User* users;
-    int num_users;
-    AuditLogEntry* entries;
-    int num_entries;
-    Integration* integrations;
-    int num_integrations;
-} AuditLog;
+    return guild;
+}
