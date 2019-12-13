@@ -72,18 +72,53 @@ typedef struct {
     char* name;
 } Attribute;
 
+bool is_array_type(AttributeType type) {
+    switch (type) {
+        // Primitive Arrays
+        case BOOLEAN_ARRAY:
+        case INT_ARRAY:    
+        case LONG_ARRAY:   
+        case STRING_ARRAY: 
+        // Arrays
+        case USER_ARRAY:
+        case ROLE_ARRAY:
+        case EMOJI_ARRAY:
+        case ACTIVITY_TIMESTAMPS_ARRAY:
+        case ACTIVITY_PARTY_ARRAY:
+        case ACTIVITY_ASSETS_ARRAY:
+        case ACTIVITY_SECRETS_ARRAY:
+        case ACTIVITY_ARRAY:
+        case CLIENT_STATUS_ARRAY:
+        case PRESENCE_ARRAY:
+        case OVERWRITE_ARRAY:
+        case CHANNEL_ARRAY:
+        case MEMBER_ARRAY:
+        case VOICE_STATE_ARRAY:
+        case GUILD_ARRAY:
+        case INVITE_ARRAY:
+        case VOICE_REGION_ARRAY:
+        case WEBHOOK_ARRAY:
+        case AUDIT_LOG_CHANGE_ARRAY:
+        case AUDIT_LOG_ENTRY_INFO_ARRAY:
+        case AUDIT_LOG_ENTRY_ARRAY:
+        case ACCOUNT_ARRAY:
+        case INTEGRATION_ARRAY:
+        case AUDIT_LOG_ARRAY:
+            return true;
+    }
+}
+
 int type_size(AttributeType type) {
     switch (type) {
         // Primitives
-        case BOOLEAN: return sizeof(bool);
-        case INT:     return sizeof(int);
-        case LONG:    return sizeof(long);
-        case STRING:  return sizeof(char*);
-        // Primitive Arrays
-        case BOOLEAN_ARRAY: return sizeof(void*) + sizeof(int);
-        case INT_ARRAY:     return sizeof(void*) + sizeof(int);
-        case LONG_ARRAY:    return sizeof(void*) + sizeof(int);
-        case STRING_ARRAY:  return sizeof(void*) + sizeof(int);
+        case BOOLEAN:
+        case BOOLEAN_ARRAY: return sizeof(bool);
+        case INT:
+        case INT_ARRAY:     return sizeof(int);
+        case LONG:
+        case LONG_ARRAY:    return sizeof(long);
+        case STRING:
+        case STRING_ARRAY:  return sizeof(char*);
         // Objects
         case USER:
         case ROLE:
@@ -136,7 +171,7 @@ int type_size(AttributeType type) {
         case INTEGRATION_ARRAY:
         case AUDIT_LOG_ARRAY:
             // pointer field + num_ field
-            return sizeof(void*) + sizeof(int);
+            return sizeof(void*);
     }
     return -1;
 }
@@ -172,9 +207,16 @@ void read_field(json_t* json, AttributeType type, char* name, void* field) {
         HANDLE(INT, int, integer)
         HANDLE(LONG, long, long)
         case STRING: ; {
-            if (json_is_null(property) || !json_is_string(property)) break;
-            char* value = json_string_value(property);
-            *((char**) field) = value;
+            if (json_is_null(property) || ! json_is_string(property)) {
+                *((char**) field) = NULL;
+                printf("Setting STRING '%s' to NULL\n", name);
+            } else {
+                char* value  = json_string_value(property);
+                char* copied = strdup(value);
+                *((char**) field) = copied;
+                printf("Setting STRING '%s'='%u'\n", name, copied);
+                printf("Value: %s\n", copied);
+            }
             break;
         }
     }
@@ -230,9 +272,25 @@ Guild* parse_guild(json_t* json) {
     int offset     = 0;
     for (int i = 0; i < num_fields; i++) {
         Attribute attr = GUILD_FIELDS[i];
+        AttributeType type = attr.type;
+        char* name         = attr.name;
+
+        printf("Field: %s, Offset: %i\n", name, offset);
+
+        // Calculate padding
+        int size    = type_size(type);
+        int padding = (int) fmod(offset, size);
+        printf("Padding: %i\n", padding);
+        int actual_size;
+        if (is_array_type(type)) {
+            actual_size = size + sizeof(int) + padding;
+        } else {
+            actual_size = size + padding;
+        }
+
         void* field = (void*) (root + offset);
-        read_field(json, attr.type, attr.name, field);
-        offset += type_size(attr.type);
+        read_field(json, type, name, field);
+        offset += actual_size;
     }
 
     return guild;

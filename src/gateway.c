@@ -86,6 +86,9 @@ void handle_guild_create(json_t* json) {
     printf("guild.icon: %s\n", guild->icon);
     printf("guild.splash: %s\n", guild->splash);
     printf("guild.owner: %i\n", guild->owner);
+    char* owner_id = guild->owner_id;
+    printf("owner_id: %u\n", owner_id);
+    printf("Value: %s\n", owner_id);
 }
 
 // Is this necessarily READY? Need to double check...
