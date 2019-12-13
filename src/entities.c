@@ -4,178 +4,6 @@
 
 #include "entities.h"
 
-typedef enum {
-    // Primitives
-    BOOLEAN,
-    INT,
-    LONG,
-    STRING,
-    // Primitive Arrays,
-    BOOLEAN_ARRAY,
-    INT_ARRAY,
-    LONG_ARRAY,
-    STRING_ARRAY,
-    // Objects
-    USER,
-    ROLE,
-    EMOJI,
-    ACTIVITY_TIMESTAMPS,
-    ACTIVITY_PARTY,
-    ACTIVITY_ASSETS,
-    ACTIVITY_SECRETS,
-    ACTIVITY,
-    CLIENT_STATUS,
-    PRESENCE,
-    OVERWRITE,
-    CHANNEL,
-    MEMBER,
-    VOICE_STATE,
-    GUILD,
-    INVITE,
-    VOICE_REGION,
-    WEBHOOK,
-    AUDIT_LOG_CHANGE,
-    AUDIT_LOG_ENTRY_INFO,
-    AUDIT_LOG_ENTRY,
-    ACCOUNT,
-    INTEGRATION,
-    AUDIT_LOG,
-    // Object Arrays
-    USER_ARRAY,
-    ROLE_ARRAY,
-    EMOJI_ARRAY,
-    ACTIVITY_TIMESTAMPS_ARRAY,
-    ACTIVITY_PARTY_ARRAY,
-    ACTIVITY_ASSETS_ARRAY,
-    ACTIVITY_SECRETS_ARRAY,
-    ACTIVITY_ARRAY,
-    CLIENT_STATUS_ARRAY,
-    PRESENCE_ARRAY,
-    OVERWRITE_ARRAY,
-    CHANNEL_ARRAY,
-    MEMBER_ARRAY,
-    VOICE_STATE_ARRAY,
-    GUILD_ARRAY,
-    INVITE_ARRAY,
-    VOICE_REGION_ARRAY,
-    WEBHOOK_ARRAY,
-    AUDIT_LOG_CHANGE_ARRAY,
-    AUDIT_LOG_ENTRY_INFO_ARRAY,
-    AUDIT_LOG_ENTRY_ARRAY,
-    ACCOUNT_ARRAY,
-    INTEGRATION_ARRAY,
-    AUDIT_LOG_ARRAY
-} AttributeType;
-
-typedef struct {
-    AttributeType type;
-    char* name;
-} Attribute;
-
-bool is_array_type(AttributeType type) {
-    switch (type) {
-        // Primitive Arrays
-        case BOOLEAN_ARRAY:
-        case INT_ARRAY:    
-        case LONG_ARRAY:   
-        case STRING_ARRAY: 
-        // Arrays
-        case USER_ARRAY:
-        case ROLE_ARRAY:
-        case EMOJI_ARRAY:
-        case ACTIVITY_TIMESTAMPS_ARRAY:
-        case ACTIVITY_PARTY_ARRAY:
-        case ACTIVITY_ASSETS_ARRAY:
-        case ACTIVITY_SECRETS_ARRAY:
-        case ACTIVITY_ARRAY:
-        case CLIENT_STATUS_ARRAY:
-        case PRESENCE_ARRAY:
-        case OVERWRITE_ARRAY:
-        case CHANNEL_ARRAY:
-        case MEMBER_ARRAY:
-        case VOICE_STATE_ARRAY:
-        case GUILD_ARRAY:
-        case INVITE_ARRAY:
-        case VOICE_REGION_ARRAY:
-        case WEBHOOK_ARRAY:
-        case AUDIT_LOG_CHANGE_ARRAY:
-        case AUDIT_LOG_ENTRY_INFO_ARRAY:
-        case AUDIT_LOG_ENTRY_ARRAY:
-        case ACCOUNT_ARRAY:
-        case INTEGRATION_ARRAY:
-        case AUDIT_LOG_ARRAY:
-            return true;
-    }
-}
-
-int type_size(AttributeType type) {
-    switch (type) {
-        // Primitives
-        case BOOLEAN:
-        case BOOLEAN_ARRAY: return sizeof(bool);
-        case INT:
-        case INT_ARRAY:     return sizeof(int);
-        case LONG:
-        case LONG_ARRAY:    return sizeof(long);
-        case STRING:
-        case STRING_ARRAY:  return sizeof(char*);
-        // Objects
-        case USER:
-        case ROLE:
-        case EMOJI:
-        case ACTIVITY_TIMESTAMPS:
-        case ACTIVITY_PARTY:
-        case ACTIVITY_ASSETS:
-        case ACTIVITY_SECRETS:
-        case ACTIVITY:
-        case CLIENT_STATUS:
-        case PRESENCE:
-        case OVERWRITE:
-        case CHANNEL:
-        case MEMBER:
-        case VOICE_STATE:
-        case GUILD:
-        case INVITE:
-        case VOICE_REGION:
-        case WEBHOOK:
-        case AUDIT_LOG_CHANGE:
-        case AUDIT_LOG_ENTRY_INFO:
-        case AUDIT_LOG_ENTRY:
-        case ACCOUNT:
-        case INTEGRATION:
-        case AUDIT_LOG:
-            return sizeof(void*);
-        // Arrays
-        case USER_ARRAY:
-        case ROLE_ARRAY:
-        case EMOJI_ARRAY:
-        case ACTIVITY_TIMESTAMPS_ARRAY:
-        case ACTIVITY_PARTY_ARRAY:
-        case ACTIVITY_ASSETS_ARRAY:
-        case ACTIVITY_SECRETS_ARRAY:
-        case ACTIVITY_ARRAY:
-        case CLIENT_STATUS_ARRAY:
-        case PRESENCE_ARRAY:
-        case OVERWRITE_ARRAY:
-        case CHANNEL_ARRAY:
-        case MEMBER_ARRAY:
-        case VOICE_STATE_ARRAY:
-        case GUILD_ARRAY:
-        case INVITE_ARRAY:
-        case VOICE_REGION_ARRAY:
-        case WEBHOOK_ARRAY:
-        case AUDIT_LOG_CHANGE_ARRAY:
-        case AUDIT_LOG_ENTRY_INFO_ARRAY:
-        case AUDIT_LOG_ENTRY_ARRAY:
-        case ACCOUNT_ARRAY:
-        case INTEGRATION_ARRAY:
-        case AUDIT_LOG_ARRAY:
-            // pointer field + num_ field
-            return sizeof(void*);
-    }
-    return -1;
-}
-
 #define HANDLE(TYPE, C_TYPE, JSON_TYPE)                    \
     TYPE: ; {                                              \
         C_TYPE value = json_##JSON_TYPE##_value(property); \
@@ -195,103 +23,267 @@ int type_size(AttributeType type) {
         *((C_TYPE*) (field + sizeof(void*))) = length; }           \
         break;
 
-void read_field(json_t* json, AttributeType type, char* name, void* field) {
-    json_t* property = json_object_get(json, name);
-    switch (type) {
-        //HANDLE(BOOLEAN, bool, boolean)
-        case BOOLEAN: ; {
-            bool value = json_boolean_value(property);
-            *((bool*) field) = value;
-            printf("Boolean: %i\n", value);
-        }
-        HANDLE(INT, int, integer)
-        HANDLE(LONG, long, long)
-        case STRING: ; {
-            if (json_is_null(property) || ! json_is_string(property)) {
-                *((char**) field) = NULL;
-                printf("Setting STRING '%s' to NULL\n", name);
-            } else {
-                char* value  = json_string_value(property);
-                char* copied = strdup(value);
-                *((char**) field) = copied;
-                printf("Setting STRING '%s'='%u'\n", name, copied);
-                printf("Value: %s\n", copied);
-            }
-            break;
-        }
-    }
+
+#define PARSE(C_TYPE, JSON_TYPE, NAME) { \
+    json_t* property = json_object_get(json, #NAME); \
+    C_TYPE  value    = json_##JSON_TYPE##_value(property); \
+    object.NAME      = value; }
+
+#define PARSE_OBJECT(C_TYPE, NAME, PARSER) { \
+    json_t* property = json_object_get(json, #NAME); \
+    C_TYPE  value    = parse_##PARSER(property); \
+    object.NAME      = value; }
+
+#define PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER) { \
+    json_t* json_array = json_object_get(json, #NAME); \
+    int length         = json_array_size(json_array); \
+    C_TYPE* array      = (C_TYPE*) malloc(sizeof(C_TYPE) * length); \
+    int index; \
+    json_t* value; \
+    json_array_foreach(json_array, index, value) { \
+        array[index] = parse_##PARSER(value); \
+    } \
+    object.NAME = array; \
+    object.num_##NAME = length; }
+
+#define OVERWRITE_FIELDS \
+    X(char*, string, id) \
+    X(char*, string, type) \
+    X(int, integer, allow) \
+    X(int, integer, deny)
+
+Overwrite parse_overwrite(json_t* json) {
+    Overwrite object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    OVERWRITE_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
 }
 
-Attribute GUILD_FIELDS[] = {
-    {STRING, "id"},
-    {STRING, "name"},
-    {STRING, "icon"},
-    {STRING, "splash"},
-    {BOOLEAN, "owner"},
-    {STRING, "owner_id"},
-    {INT, "permissions"},
-    {STRING, "region"},
-    {LONG, "afk_channel_id"},
-    {LONG, "afk_timeout"},
-    {BOOLEAN, "embed_enabled"},
-    {BOOLEAN, "embed_channel_id"},
-    {INT, "verification_level"},
-    {INT, "default_message_notifications"},
-    {INT, "explicit_content_filter"},
-    {ROLE_ARRAY, "roles"},
-    {EMOJI_ARRAY, "emojis"},
-    {STRING_ARRAY, "features"},
-    {INT, "mfa_level"},
-    {LONG, "application_id"},
-    {BOOLEAN, "widget_enabled"},
-    {LONG, "widget_channel_id"},
-    {LONG, "system_channel_id"},
-    {LONG, "joined_at"},
-    {BOOLEAN, "large"},
-    {BOOLEAN, "unavailable"},
-    {INT, "member_count"},
-    {VOICE_STATE_ARRAY, "voice_states"},
-    {MEMBER_ARRAY, "members"},
-    {CHANNEL_ARRAY, "channels"},
-    {PRESENCE_ARRAY, "presences"},
-    {INT, "max_presences"},
-    {INT, "max_members"},
-    {STRING, "vanity_url_code"},
-    {STRING, "description"},
-    {STRING, "banner"},
-    {INT, "premium_tier"},
-    {INT, "premium_subscription_count"},
-    {STRING, "preferrred_locale"}
-};
+#define USER_FIELDS \
+    X(char*, string, id) \
+    X(char*, string, username) \
+    X(char*, string, discriminator) \
+    X(char*, string, avatar) \
+    X(bool, boolean, bot) \
+    X(bool, boolean, system) \
+    X(bool, boolean, mfa_enabled) \
+    X(char*, string, locale) \
+    X(bool, boolean, verified) \
+    X(char*, string, email) \
+    X(int, integer, flags) \
+    X(int, integer, premium_type)
 
-Guild* parse_guild(json_t* json) {
-    Guild* guild = (Guild*) malloc(sizeof(Guild));
+User parse_user(json_t* json) {
+    User object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    USER_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
 
-    int num_fields = sizeof(GUILD_FIELDS) / sizeof(GUILD_FIELDS[0]);
-    char* root      = (char*) guild;
-    int offset     = 0;
-    for (int i = 0; i < num_fields; i++) {
-        Attribute attr = GUILD_FIELDS[i];
-        AttributeType type = attr.type;
-        char* name         = attr.name;
+// TODO: cba rn
+Activity parse_activity(json_t* json) {
+    Activity object;
+    return object;
+}
 
-        printf("Field: %s, Offset: %i\n", name, offset);
+#define CLIENT_STATUS_FIELDS \
+    X(char*, string, desktop) \
+    X(char*, string, mobile) \
+    X(char*, string, web)
 
-        // Calculate padding
-        int size    = type_size(type);
-        int padding = (int) fmod(offset, size);
-        printf("Padding: %i\n", padding);
-        int actual_size;
-        if (is_array_type(type)) {
-            actual_size = size + sizeof(int) + padding;
-        } else {
-            actual_size = size + padding;
-        }
+ClientStatus parse_client_status(json_t* json) {
+    ClientStatus object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    CLIENT_STATUS_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
 
-        void* field = (void*) (root + offset);
-        read_field(json, type, name, field);
-        offset += actual_size;
-    }
+#define ROLE_FIELDS \
+    X(char*, string, id) \
+    X(char*, string, name) \
+    X(int, integer, color) \
+    X(bool, boolean, hoist) \
+    X(int, integer, position) \
+    X(int, integer, permissions) \
+    X(bool, boolean, managed) \
+    X(bool, boolean, mentionable)
+ 
+Role parse_role(json_t* json) {
+    Role object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    ROLE_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
 
-    return guild;
+#define EMOJI_FIELDS \
+    X(char*, string, id) \
+    X(char*, string, name) \
+    Y(Role, roles, role) \
+    Z(User, user, user) \
+    X(bool, boolean, require_colons) \
+    X(bool, boolean, managed) \
+    X(bool, boolean, animated)
+
+Emoji parse_emoji(json_t* json) {
+    Emoji object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    EMOJI_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
+
+char* parse_string(json_t* json) {
+    return json_string_value(json);
+}
+
+#define MEMBER_FIELDS \
+    Z(User, user, user) \
+    X(char*, string, nick) \
+    Y(char*, roles, string) \
+    X(int, integer, joined_at) \
+    X(int, integer, premium_since) \
+    X(bool, boolean, deaf) \
+    X(bool, boolean, mute)
+
+Member parse_member(json_t* json) {
+    Member object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    MEMBER_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
+
+#define CHANNEL_FIELDS \
+    X(char*, string, id) \
+    X(int, integer, type) \
+    X(char*, string, guild_id) \
+    X(int, integer, position) \
+    Y(Overwrite, permission_overwrites, overwrite) \
+    X(char*, string, name) \
+    X(char*, string, topic) \
+    X(bool, boolean, nsfw) \
+    X(char*, string, last_message_id) \
+    X(int, integer, bitrate) \
+    X(int, integer, user_limit) \
+    X(int, integer, rate_limit_per_user) \
+    Y(User, recipients, user) \
+    X(char*, string, icon) \
+    X(char*, string, owner_id) \
+    X(char*, string, application_id) \
+    X(char*, string, parent_id) \
+    X(int, integer, last_pin_timestamp)
+
+Channel parse_channel(json_t* json) {
+    Channel object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    CHANNEL_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
+
+#define PRESENCE_FIELDS \
+    Z(User, user, user) \
+    Y(Role, roles, role) \
+    Z(Activity, game, activity) \
+    X(char*, string, guild_id) \
+    X(char*, string, status) \
+    Y(Activity, activities, activity) \
+    Z(ClientStatus, client_status, client_status) \
+    X(int, integer, premium_since) \
+    X(char*, string, nick)
+
+Presence parse_presence(json_t* json) {
+    Presence object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    PRESENCE_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
+
+#define GUILD_FIELDS \
+    X(char*, string, id) \
+    X(char*, string, name) \
+    X(char*, string, icon) \
+    X(char*, string, splash) \
+    X(bool, boolean, owner) \
+    X(char*, string, owner_id) \
+    X(int, integer, permissions) \
+    X(char*, string, region) \
+    X(int, integer, afk_channel_id) \
+    X(int, integer, afk_timeout) \
+    X(bool, boolean, embed_enabled) \
+    X(bool, boolean, embed_channel_id) \
+    X(int, integer, verification_level) \
+    X(int, integer, default_message_notifications) \
+    X(int, integer, explicit_content_filter) \
+    Y(Role, roles, role) \
+    Y(Emoji, emojis, emoji) \
+    Y(char*, features, string) \
+    X(int, integer, mfa_level) \
+    X(int, integer, application_id) \
+    X(bool, boolean, widget_enabled) \
+    X(int, integer, widget_channel_id) \
+    X(int, integer, system_channel_id) \
+    X(int, integer, joined_at) \
+    X(bool, boolean, large) \
+    X(bool, boolean, unavailable) \
+    Y(Member, members, member) \
+    Y(Channel, channels, channel) \
+    Y(Presence, presences, presence) \
+    X(int, integer, member_count) \
+    X(int, integer, max_presences) \
+    X(int, integer, max_members) \
+    X(char*, string, vanity_url_code) \
+    X(char*, string, description) \
+    X(char*, string, banner) \
+    X(int, integer, premium_tier) \
+    X(int, integer, premium_subscription_count) \
+    X(char*, string, preferred_locale)
+
+Guild parse_guild(json_t* json) {
+    Guild object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    GUILD_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
 }

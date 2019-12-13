@@ -33,7 +33,7 @@ typedef struct {
     char* name;
     Role* roles;
     int num_roles;
-    User* user; //creator
+    User user; //creator
     bool require_colons;
     bool managed;
     bool animated;
@@ -71,7 +71,7 @@ typedef struct {
     ActivityTimestamps* timestamps;
     char* details;
     char* state;
-    Emoji* emoji;
+    Emoji emoji;
     ActivityAssets* assets;
     ActivitySecrets* secrets;
     bool instance;
@@ -85,15 +85,15 @@ typedef struct {
 } ClientStatus;
 
 typedef struct {
-    User* user;
+    User user;
     Role* roles;
     int num_roles;
-    Activity* game;
+    Activity game;
     long guild_id;
     char* status;
     Activity* activities;
     int num_activities;
-    ClientStatus* client_status;
+    ClientStatus client_status;
     long premium_since;
     char* nick;
 } Presence;
@@ -129,9 +129,9 @@ typedef struct {
 } Channel;
 
 typedef struct {
-    User* user;
+    User user;
     char* nick;
-    long* roles;
+    char** roles;
     int num_roles;
     long joined_at;
     long premium_since;
@@ -206,7 +206,7 @@ typedef struct {
     char* code;
     Guild* guild;
     Channel* channel;
-    User* target_user;
+    User target_user;
     int target_user_type;
     int approximate_presence_count;
     int approximate_member_count;
@@ -226,7 +226,7 @@ typedef struct {
     int type;
     long guild_id;
     long channel_id;
-    User* user;
+    User user;
     char* name;
     char* avatar;
     char* token;
@@ -272,8 +272,8 @@ typedef struct {
     long role_id;
     int expire_behavior;
     int expire_grace_period;
-    User* user;
-    Account* account;
+    User user;
+    Account account;
     long synced_at;
 } Integration;
 
@@ -288,4 +288,16 @@ typedef struct {
     int num_integrations;
 } AuditLog;
 
-Guild* parse_guild(json_t* json);
+Role parse_role(json_t* json);
+
+Emoji parse_emoji(json_t* json);
+
+char* parse_feature(json_t* json);
+
+Member parse_member(json_t* json);
+
+Channel parse_channel(json_t* json);
+
+Presence parse_presence(json_t* json);
+
+Guild parse_guild(json_t* json);

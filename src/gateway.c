@@ -80,15 +80,12 @@ void handle_ready(json_t* json) {
 }
 
 void handle_guild_create(json_t* json) {
-    Guild* guild = parse_guild(json);
-    printf("guild.id: %s\n", guild->id);
-    printf("guild.name: %s\n", guild->name);
-    printf("guild.icon: %s\n", guild->icon);
-    printf("guild.splash: %s\n", guild->splash);
-    printf("guild.owner: %i\n", guild->owner);
-    char* owner_id = guild->owner_id;
-    printf("owner_id: %u\n", owner_id);
-    printf("Value: %s\n", owner_id);
+    Guild guild = parse_guild(json);
+    for (int i = 0; i < guild.num_members; i++) {
+        Member member = guild.members[i];
+        if (member.user.bot)
+            printf("Member: %s\n", member.user.username);
+    }
 }
 
 // Is this necessarily READY? Need to double check...
