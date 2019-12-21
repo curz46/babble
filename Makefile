@@ -1,9 +1,13 @@
+#!make
+
 src = $(wildcard src/*.c)
 obj = $(patsubst src%,out%,$(src:.c=.o))
 dep = $(obj:.o=.d))
 exe = bin/babble
 
-override CFLAGS = -g -std=gnu99
+envfile = .env
+include $(envfile)
+
 INCLUDE = -Ivendor/curl/include \
 				  -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer \
 				  -Ivendor/libev \
@@ -14,6 +18,7 @@ LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a \
 		  -Lvendor/jansson/src/.libs -l:libjansson.a \
 		  -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm -lnghttp2 -lidn2 -lrtmp -lpsl -lbrotlidec
 SOURCE_EXT =
+
 
 all: pre babble
 
@@ -33,6 +38,10 @@ babble: $(obj)
 
 out/%.o: src/%.c
 	gcc -g $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+
+.PHONY: test
+test: babble
+	TOKEN=$(TOKEN) ./bin/babble
 
 .PHONY: vendor
 vendor: curl libev libuwsc jansson
