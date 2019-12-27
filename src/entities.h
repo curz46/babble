@@ -3,7 +3,7 @@
 #include <jansson.h>
 
 typedef struct {
-    long id;
+    char* id;
     char* username;
     char* discriminator;
     char* avatar;
@@ -18,7 +18,7 @@ typedef struct {
 } User;
 
 typedef struct {
-    long id;
+    char* id;
     char* name;
     int color;
     bool hoist;
@@ -29,7 +29,7 @@ typedef struct {
 } Role;
 
 typedef struct {
-    long id;
+    char* id;
     char* name;
     Role* roles;
     int num_roles;
@@ -99,14 +99,14 @@ typedef struct {
 } Presence;
 
 typedef struct {
-    long id;
+    char* id;
     char* type;
     int allow;
     int deny;
 } Overwrite;
 
 typedef struct {
-    long id;
+    char* id;
     int type;
     long guild_id;
     int position;
@@ -222,7 +222,7 @@ typedef struct {
 } VoiceRegion;
 
 typedef struct {
-    long id;
+    char* id;
     int type;
     long guild_id;
     long channel_id;
@@ -244,7 +244,7 @@ typedef struct {
     long channel_id;
     long message_id;
     char* count;
-    long id;
+    char* id;
     char* type;
     char* role_name;
 } AuditLogEntryInfo;
@@ -254,7 +254,7 @@ typedef struct {
     AuditLogChange* changes;
     int num_changes;
     long user_id;
-    long id;
+    char* id;
     int action_type;
 } AuditLogEntry;
 
@@ -264,7 +264,7 @@ typedef struct {
 } Account;
 
 typedef struct {
-    long id;
+    char* id;
     char* name;
     char* type;
     bool enabled;
@@ -288,16 +288,169 @@ typedef struct {
     int num_integrations;
 } AuditLog;
 
+typedef struct {
+    char* id;
+    char* filename;
+    int size;
+    char* url;
+    char* proxy_url;
+    int height;
+    int width;
+} Attachment;
+
+typedef struct {
+    char* text;
+    char* icon_url;
+    char* proxy_icon_url;
+} EmbedFooter;
+
+typedef struct {
+    char* url;
+    char* proxy_url;
+    int height;
+    int width;
+} EmbedImage;
+
+typedef struct {
+    char* url;
+    char* proxy_url;
+    int height;
+    int width;
+} EmbedThumbnail;
+
+typedef struct {
+    char* url;
+    int height;
+    int width;
+} EmbedVideo;
+
+typedef struct {
+    char* name;
+    char* url;
+} EmbedProvider;
+
+typedef struct {
+    char* name;
+    char* url;
+    char* icon_url;
+    char* proxy_icon_url;
+} EmbedAuthor;
+
+typedef struct {
+    char* name;
+    char* value;
+    bool inline;
+} EmbedField;
+
+typedef struct {
+    char* title;
+    char* type;
+    char* description;
+    char* url;
+    long timestamp;
+    int color;
+    EmbedFooter footer;
+    EmbedImage image;
+    EmbedThumbnail thumbnail;
+    EmbedVideo video;
+    EmbedProvider provider;
+    EmbedAuthor author;
+    EmbedField* fields;
+    int num_fields;
+} Embed;
+
+typedef struct {
+    char* id;
+    char* guild_id;
+    int type;
+    char* name;
+} ChannelMention;
+
+typedef struct {
+    int count;
+    bool me;
+    Emoji emoji;
+} Reaction;
+
+typedef struct {
+    int ype;
+    char* party_id;
+} MessageActivity;
+
+typedef struct {
+    char* id;
+    char* cover_image;
+    char* description;
+    char* icon;
+    char* name;
+} MessageApplication;
+
+typedef struct {
+    char* message_id;
+    char* channel_Id;
+    char* guild_id;
+} MessageReference;
+
+typedef struct {
+    char* id;
+    char* channel_id;
+    char* guild_id;
+    User author;
+    Member member;
+    char* content;
+    long timestamp;
+    long edited_timestamp;
+    bool tts;
+    bool mention_everyone;
+    User* mentions;
+    int num_mentions;
+    Role* mention_roles;
+    int num_mention_roles;
+    ChannelMention* mention_channels;
+    int num_mention_channels;
+    Attachment* attachments;
+    int num_attachments;
+    Embed* embeds;
+    int num_embeds;
+    Reaction* reactions;
+    int num_reactions;
+    int nonce;
+    bool pinned;
+    char* webhook_id;
+    int type;
+    MessageActivity activity;
+    MessageApplication application;
+    MessageReference message_reference;
+    int flags;
+} Message;
+
+///////////////////////////////////////////////////////////////////////////////
+
 Role parse_role(json_t* json);
-
 Emoji parse_emoji(json_t* json);
-
 char* parse_feature(json_t* json);
-
 Member parse_member(json_t* json);
-
 Channel parse_channel(json_t* json);
-
 Presence parse_presence(json_t* json);
-
 Guild parse_guild(json_t* json);
+// message
+Attachment parse_attachment(json_t* json);
+
+EmbedFooter parse_embed_footer(json_t* json);
+EmbedImage parse_embed_image(json_t* json);
+EmbedThumbnail parse_embed_thumbnail(json_t* json);
+EmbedVideo parse_embed_video(json_t* json);
+EmbedProvider parse_embed_provider(json_t* json);
+EmbedAuthor parse_embed_author(json_t* json);
+EmbedField parse_embed_field(json_t* json);
+Embed parse_embed(json_t* json);
+
+ChannelMention parse_channel_mention(json_t* json);
+
+Reaction parse_reaction(json_t* json);
+
+MessageActivity parse_message_activity(json_t* json);
+MessageApplication parse_message_application(json_t* json);
+MessageReference parse_message_reference(json_t* json):
+
+Message parse_message(json_t* json);

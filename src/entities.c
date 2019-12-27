@@ -4,26 +4,6 @@
 
 #include "entities.h"
 
-#define HANDLE(TYPE, C_TYPE, JSON_TYPE)                    \
-    TYPE: ; {                                              \
-        C_TYPE value = json_##JSON_TYPE##_value(property); \
-        *((C_TYPE*) field) = value; }                      \
-        break;
-
-#define HANDLE_ARRAY(TYPE, C_TYPE, JSON_TYPE)                      \
-    TYPE: ; {                                                      \
-        int length = json_array_size(property);                    \
-        C_TYPE* array = (C_TYPE*) malloc(sizeof(C_TYPE) * length); \
-        for (int i = 0; i < length; i++) {                         \
-            json_t* element = json_array_get(property, i);         \
-            C_TYPE value = json_##JSON_TYPE##_value(element);      \
-            array[i] = value;                                      \
-        }                                                          \
-        *((C_TYPE*) field) = array;                                \
-        *((C_TYPE*) (field + sizeof(void*))) = length; }           \
-        break;
-
-
 #define PARSE(C_TYPE, JSON_TYPE, NAME) { \
     json_t* property = json_object_get(json, #NAME); \
     C_TYPE  value    = json_##JSON_TYPE##_value(property); \
