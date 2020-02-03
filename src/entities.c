@@ -267,3 +267,61 @@ Guild parse_guild(json_t* json) {
     #undef Z
     return object;
 }
+
+MessageActivity parse_message_activity(json_t* json) {
+    MessageActivity object;
+    // TODO
+    return object;
+}
+
+MessageApplication parse_message_application(json_t* json) {
+    MessageApplication object;
+    // TODO
+    return object;
+}
+
+MessageReference parse_message_reference(json_t* json) {
+    MessageReference object;
+    // TODO
+    return object;
+}
+
+#define MESSAGE_FIELDS \
+    X(char*, string, id) \
+    X(char*, string, channel_id) \
+    X(char*, string, guild_id) \
+    Y(User, author, user) \
+    Y(Member, member, member) \
+    X(char*, string, content) \
+    X(long, integer, timestamp) \
+    X(long, integer, edited_timestamp) \
+    X(bool, boolean, tts) \
+    X(bool, boolean, mention_everyone) \
+    Z(User, mentions, user) \
+    Z(Role, mention_roles, role) \
+    Z(ChannelMention, mention_channels, mention_channel) \
+    Z(Attachment, attachments, attachment) \
+    Z(Embed, embeds, embed) \
+    Z(Reaction, reactions, reaction) \
+    X(int, integer, nonce) \
+    X(bool, boolean, pinned) \
+    X(char*, string, webhook_id) \
+    X(int, integer, type) \
+    Z(MessageActivity, activity, message_activity) \
+    Z(MessageApplication, application, message_application) \
+    Z(MessageReference, message_reference, message_reference) \
+    X(int, integer, flags)
+
+Message parse_message(json_t* json) {
+    Message object;
+    #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
+    #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
+    MESSAGE_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+    return object;
+}
+
+
