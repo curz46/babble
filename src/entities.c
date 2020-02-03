@@ -268,6 +268,12 @@ Guild parse_guild(json_t* json) {
     return object;
 }
 
+ChannelMention parse_channel_mention(json_t* json) {
+    ChannelMention object;
+    // TODO
+    return object;
+}
+
 MessageActivity parse_message_activity(json_t* json) {
     MessageActivity object;
     // TODO
@@ -286,23 +292,41 @@ MessageReference parse_message_reference(json_t* json) {
     return object;
 }
 
+Embed parse_embed(json_t* json) {
+    Embed object;
+    // TODO
+    return object;
+}
+
+Attachment parse_attachment(json_t* json) {
+    Attachment object;
+    // TODO
+    return object;
+}
+
+Reaction parse_reaction(json_t* json) {
+    Reaction object;
+    // TODO
+    return object;
+}
+
 #define MESSAGE_FIELDS \
     X(char*, string, id) \
     X(char*, string, channel_id) \
     X(char*, string, guild_id) \
-    Y(User, author, user) \
-    Y(Member, member, member) \
+    Z(User, author, user) \
+    Z(Member, member, member) \
     X(char*, string, content) \
     X(long, integer, timestamp) \
     X(long, integer, edited_timestamp) \
     X(bool, boolean, tts) \
     X(bool, boolean, mention_everyone) \
-    Z(User, mentions, user) \
-    Z(Role, mention_roles, role) \
-    Z(ChannelMention, mention_channels, mention_channel) \
-    Z(Attachment, attachments, attachment) \
-    Z(Embed, embeds, embed) \
-    Z(Reaction, reactions, reaction) \
+    Y(User, mentions, user) \
+    Y(Role, mention_roles, role) \
+    Y(ChannelMention, mention_channels, channel_mention) \
+    Y(Attachment, attachments, attachment) \
+    Y(Embed, embeds, embed) \
+    Y(Reaction, reactions, reaction) \
     X(int, integer, nonce) \
     X(bool, boolean, pinned) \
     X(char*, string, webhook_id) \

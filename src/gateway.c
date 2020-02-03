@@ -88,6 +88,13 @@ void handle_guild_create(json_t* json) {
     }
 }
 
+void handle_message_create(json_t* json) {
+    Message message = parse_message(json);
+    printf("Received message:\n");
+    printf("Content=%s\n", message.content);
+    printf("Author=%s\n", message.author.username);
+}
+
 // Is this necessarily READY? Need to double check...
 void handle_dispatch(char* event, json_t* json) { // "READY"
     if (event == NULL) {
@@ -99,6 +106,8 @@ void handle_dispatch(char* event, json_t* json) { // "READY"
         handle_ready(json);
     } else if (strcmp(event, "GUILD_CREATE") == 0) {
         handle_guild_create(json);
+    } else if (strcmp(event, "MESSAGE_CREATE") == 0) { 
+        handle_message_create(json);
     } else {
         printf("ERROR: Unrecognised DISPATCH event \"%s\"\n", event);
     }

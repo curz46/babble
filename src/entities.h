@@ -339,7 +339,7 @@ typedef struct {
 typedef struct {
     char* name;
     char* value;
-    bool inline;
+    bool is_inline;
 } EmbedField;
 
 typedef struct {
@@ -451,6 +451,6 @@ Reaction parse_reaction(json_t* json);
 
 MessageActivity parse_message_activity(json_t* json);
 MessageApplication parse_message_application(json_t* json);
-MessageReference parse_message_reference(json_t* json):
+MessageReference parse_message_reference(json_t* json);
 
 Message parse_message(json_t* json);
