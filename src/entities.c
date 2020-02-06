@@ -413,4 +413,5 @@ json_t* compose_message(Message object) {
     #undef X
     #undef Y
     #undef Z
+    return json;
 }

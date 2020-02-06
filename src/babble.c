@@ -8,35 +8,10 @@
 
 #include "routes.h"
 #include "gateway.h"
+#include "util.h"
 
 #define MAX_SEGMENTS 100 // Dynamic allocation too hard, just make it
                          // "large enough"
-
-char* concat(const char* str1, const char* str2) {
-    // Allow 1 byte for the NULL terminator
-    char* result = malloc(1 + strlen(str1) + strlen(str2));
-    if (result != NULL) {
-        result[0] = '\0';
-        strcat(result, str1);
-        strcat(result, str2);
-        return result;
-    } else {
-        return NULL;
-    }
-}
-
-size_t on_receive(char* data, size_t size, size_t nmemb, char** content) {
-    char* result;
-    result = concat(*content, data);
-    if (result == NULL) {
-        printf("ERROR: Couldn't concat data to content.");
-        exit(1);
-    }
-    *content = result;
-    
-    // libcurl expects this
-    return size * nmemb;
-}
 
 int main() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -50,7 +25,7 @@ int main() {
     char* data = "";
 
     curl_easy_setopt(curl, CURLOPT_URL, BASE GATEWAY_GET);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, on_receive);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_on_write);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 
     const CURLcode result = curl_easy_perform(curl);
@@ -66,7 +41,7 @@ int main() {
     printf("Final content: %s\n", data);
 
     curl_easy_cleanup(curl);
-    curl_global_cleanup();
+    //curl_global_cleanup();
     
     json_error_t error;
     json_t* root = json_loads(data, 0, &error);

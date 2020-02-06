@@ -10,6 +10,7 @@
 #include "gateway.h"
 #include "payload.h"
 #include "entities.h"
+#include "routes.h"
 
 #define EV_LOOP EV_DEFAULT
 
@@ -93,6 +94,20 @@ void handle_message_create(json_t* json) {
     printf("Received message:\n");
     printf("Content=%s\n", message.content);
     printf("Author=%s\n", message.author.username);
+    printf("Channel=%s\n", message.channel_id);
+
+    if (strcmp(message.content, "bb!test") == 0) {
+        Message new_message;
+        new_message.content = "Hello, world!";
+        Message created_message;
+        printf("Responding...\n");
+        create_message(message.channel_id, new_message, &created_message);
+
+        printf("Created message:\n");
+        printf("Content=%s\n", created_message.content);
+        printf("Author=%s\n", created_message.author.username);
+        printf("Channel=%s\n", created_message.channel_id);
+    }
 }
 
 // Is this necessarily READY? Need to double check...
