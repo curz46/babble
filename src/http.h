@@ -1,6 +1,8 @@
 #ifndef BABBLE_HTTP
 #define BABBLE_HTTP
 
+#include <jansson.h>
+
 const int REQUEST_SUCCESS = 100;
 const int REQUEST_ERR_CURL_INIT  = 101;
 const int REQUEST_ERR_CURL_FAIL  = 102;

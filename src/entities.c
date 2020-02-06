@@ -51,7 +51,7 @@
 #define COMPOSE(C_TYPE, JSON_TYPE, NAME) { \
     C_TYPE value    = object.NAME; \
     json_t* wrapped = json_##JSON_TYPE(value); \
-    json_object_set(json, #NAME, property); } \
+    json_object_set(json, #NAME, wrapped); } \
 
 /**
  * The reverse of PARSE_OBJECT. It should:
@@ -74,10 +74,10 @@
  */
 #define COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER) { \
     json_t* array = json_array(); \
-    int length = object.num_#NAME; \
+    int length = object.num_##NAME; \
     for (int i = 0; i < length; i++) { \
         C_TYPE value        = object.NAME[i]; \
-        json_t* transformed = compose_#COMPOSER(value); \
+        json_t* transformed = compose_##COMPOSER(value); \
         json_array_append_new(array, transformed); \
     } \
     json_object_set(json, #NAME, array); }
@@ -407,8 +407,8 @@ Message parse_message(json_t* json) {
 json_t* compose_message(Message object) {
     json_t* json = json_object();
     #define X(C_TYPE, JSON_TYPE, NAME) COMPOSE(C_TYPE, JSON_TYPE, NAME)
-    #define Y(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT(C_TYPE, NAME, COMPOSER)
-    #define Z(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER)
+    #define Y(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER)
+    #define Z(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT(C_TYPE, NAME, COMPOSER)
     MESSAGE_FIELDS
     #undef X
     #undef Y

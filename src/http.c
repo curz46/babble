@@ -2,6 +2,7 @@
 #include "util.h"
 
 #include <curl/curl.h>
+#include <jansson.h>
 
 int http_post_json(char* url, json_t* json, json_t** response) {
     const CURL* curl = curl_easy_init();
@@ -35,12 +36,12 @@ int http_post_json(char* url, json_t* json, json_t** response) {
     }
 
     json_error_t parse_error;
-    json_t* json = json_loads(data, 0, &parse_error);
+    json_t* parsed = json_loads(data, 0, &parse_error);
 
-    if (parse_error) {
-        return REQUEST_ERR_JSON_PARSE;
-    }
+    //if (parse_error) {
+    //    return REQUEST_ERR_JSON_PARSE;
+    //}
 
-    *response = json;
+    *response = parsed;
     return REQUEST_SUCCESS;
 }
