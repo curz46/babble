@@ -4,16 +4,32 @@
 
 #include "entities.h"
 
+/**
+ * PARSE expands to a block of code that:
+ * 1. Gets the value of some property NAME of json_t* Object variable "json"
+ * 2. Assigns the value for struct "object" on member NAME.
+ */
 #define PARSE(C_TYPE, JSON_TYPE, NAME) { \
     json_t* property = json_object_get(json, #NAME); \
     C_TYPE  value    = json_##JSON_TYPE##_value(property); \
     object.NAME      = value; }
 
+/**
+ * PARSE_OBJECT is similar to PARSE, but it allows some arbitrary parse
+ * function to interpret the json_t* field. The parse function should be in
+ * form parse_{name}, where {name} should be given by the argument PARSER.
+ * The name given is not the full function name such that the function
+ * arguments can also be utilised by some composition function.
+ */
 #define PARSE_OBJECT(C_TYPE, NAME, PARSER) { \
     json_t* property = json_object_get(json, #NAME); \
     C_TYPE  value    = parse_##PARSER(property); \
     object.NAME      = value; }
 
+/**
+ * PARSE_OBJECT_ARRAY is similar to PARSE_OBJECT, but rather than expecting
+ * a singular Object it expects an array of Objects.
+ */
 #define PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER) { \
     json_t* json_array = json_object_get(json, #NAME); \
     int length         = json_array_size(json_array); \
@@ -26,6 +42,46 @@
     object.NAME = array; \
     object.num_##NAME = length; }
 
+/**
+ * The reverse of PARSE. It should:
+ * 1. Extract the value of a member from some struct "object".
+ * 2. Use json_object_set to assign the value to a property of a json_t*
+ *    object "json".
+ */
+#define COMPOSE(C_TYPE, JSON_TYPE, NAME) { \
+    C_TYPE value    = object.NAME; \
+    json_t* wrapped = json_##JSON_TYPE(value); \
+    json_object_set(json, #NAME, property); } \
+
+/**
+ * The reverse of PARSE_OBJECT. It should:
+ * 1. Extract the Object value of a member from some struct "object".
+ * 2. Transform the Object value into a json_t* object.
+ * 3. Use json_object_set to assign the transformed value to a property of
+ *    json_t* object "json".
+ */
+#define COMPOSE_OBJECT(C_TYPE, NAME, COMPOSER) { \
+    C_TYPE value        = object.NAME; \
+    json_t* transformed = compose_##COMPOSER(value); \
+    json_object_set(json, #NAME, transformed); }
+
+/**
+ * The reverse of PARSE_OBJECT_ARRAY. It should:
+ * 1. Loop through the Object array on struct "object" and generate a json_t*
+ *    array.
+ * 2. For each member, use compose_#COMPOSER to create a json_t* value.
+ * 2. Use json_object_set to assign the Object array to json_t* object "json".
+ */
+#define COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER) { \
+    json_t* array = json_array(); \
+    int length = object.num_#NAME; \
+    for (int i = 0; i < length; i++) { \
+        C_TYPE value        = object.NAME[i]; \
+        json_t* transformed = compose_#COMPOSER(value); \
+        json_array_append_new(array, transformed); \
+    } \
+    json_object_set(json, #NAME, array); }
+    
 #define OVERWRITE_FIELDS \
     X(char*, string, id) \
     X(char*, string, type) \
