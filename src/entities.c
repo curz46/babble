@@ -404,4 +404,13 @@ Message parse_message(json_t* json) {
     return object;
 }
 
-
+json_t* compose_message(Message object) {
+    json_t* json = json_object();
+    #define X(C_TYPE, JSON_TYPE, NAME) COMPOSE(C_TYPE, JSON_TYPE, NAME)
+    #define Y(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT(C_TYPE, NAME, COMPOSER)
+    #define Z(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER)
+    MESSAGE_FIELDS
+    #undef X
+    #undef Y
+    #undef Z
+}

@@ -454,3 +454,4 @@ MessageApplication parse_message_application(json_t* json);
 MessageReference parse_message_reference(json_t* json);
 
 Message parse_message(json_t* json);
+json_t* compose_message(Message message);
