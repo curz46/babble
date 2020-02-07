@@ -6,7 +6,7 @@
 
 #define CREATE_MESSAGE "/channels/%s/messages"
 
-#define format_route(ROUTE, args...) \
-    sprintf(BASE ROUTE, args)
+#define format_route(URL, ROUTE, args...) \
+    sprintf(URL, BASE ROUTE, args)
 
 #endif

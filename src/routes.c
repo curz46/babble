@@ -2,9 +2,11 @@
 #include "entities.h"
 #include "http.h"
 
-int create_message(char* channel_id, Message* message, Message* created) {
-    char* url    = format_route(CREATE_MESSAGE, channel_id);
-    json_t* json = compose_message(*message);
+int create_message(char* channel_id, Message message, Message* created) {
+    char url[1000];
+    format_route(url, CREATE_MESSAGE, channel_id);
+    
+    json_t* json = compose_message(message);
     json_t* response;
 
     int result = http_post_json(url, json, &response);

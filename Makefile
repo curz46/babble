@@ -37,7 +37,7 @@ babble: $(obj)
 	@$(CPP) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
 
 out/%.o: src/%.c
-	gcc -g $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
+	gcc -g3 $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 .PHONY: test
 test: babble

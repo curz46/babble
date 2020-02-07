@@ -433,8 +433,17 @@ Member parse_member(json_t* json);
 Channel parse_channel(json_t* json);
 Presence parse_presence(json_t* json);
 Guild parse_guild(json_t* json);
+json_t* compose_role(Role object);
+json_t* compose_emoji(Emoji object);
+json_t* compose_feature(char* object);
+json_t* compose_member(Member object);
+json_t* compose_channel(Channel object);
+json_t* compose_presence(Presence object);
+json_t* compose_guild(Guild object);
+
 // message
 Attachment parse_attachment(json_t* json);
+json_t* compose_attachment(Attachment object);
 
 EmbedFooter parse_embed_footer(json_t* json);
 EmbedImage parse_embed_image(json_t* json);
@@ -444,14 +453,27 @@ EmbedProvider parse_embed_provider(json_t* json);
 EmbedAuthor parse_embed_author(json_t* json);
 EmbedField parse_embed_field(json_t* json);
 Embed parse_embed(json_t* json);
+json_t* compose_embed_footer(EmbedFooter object);
+json_t* compose_embed_image(EmbedImage object);
+json_t* compose_embed_thumbnail(EmbedThumbnail object);
+json_t* compose_embed_video(EmbedVideo object);
+json_t* compose_embed_provider(EmbedProvider object);
+json_t* compose_embed_author(EmbedAuthor object);
+json_t* compose_embed_field(EmbedField object);
+json_t* compose_embed(Embed object);
 
 ChannelMention parse_channel_mention(json_t* json);
+json_t* compose_channel_mention(ChannelMention object);
 
 Reaction parse_reaction(json_t* json);
+json_t* compose_reaction(Reaction object);
 
 MessageActivity parse_message_activity(json_t* json);
 MessageApplication parse_message_application(json_t* json);
 MessageReference parse_message_reference(json_t* json);
+json_t* compose_message_activity(MessageActivity object);
+json_t* compose_message_application(MessageApplication object);
+json_t* compose_message_reference(MessageReference object);
 
 Message parse_message(json_t* json);
-json_t* compose_message(Message message);
+json_t* compose_message(Message object);

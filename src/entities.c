@@ -100,6 +100,11 @@ Overwrite parse_overwrite(json_t* json) {
     return object;
 }
 
+json_t* compose_overwrite(Overwrite object) {
+    // TODO
+    return json_object();
+}
+
 #define USER_FIELDS \
     X(char*, string, id) \
     X(char*, string, username) \
@@ -126,10 +131,20 @@ User parse_user(json_t* json) {
     return object;
 }
 
+json_t* compose_user(User object) {
+    // TODO
+    return json_object();
+}
+
 // TODO: cba rn
 Activity parse_activity(json_t* json) {
     Activity object;
     return object;
+}
+
+json_t* compose_activity(Activity object) {
+    // TODO
+    return json_object();
 }
 
 #define CLIENT_STATUS_FIELDS \
@@ -147,6 +162,10 @@ ClientStatus parse_client_status(json_t* json) {
     #undef Y
     #undef Z
     return object;
+}
+
+json_t* compose_client_status(ClientStatus object) {
+    return json_object();
 }
 
 #define ROLE_FIELDS \
@@ -171,6 +190,10 @@ Role parse_role(json_t* json) {
     return object;
 }
 
+json_t* compose_role(Role object) {
+    return json_object();
+}
+
 #define EMOJI_FIELDS \
     X(char*, string, id) \
     X(char*, string, name) \
@@ -192,8 +215,16 @@ Emoji parse_emoji(json_t* json) {
     return object;
 }
 
+json_t* compose_emoji(Emoji object) {
+    return json_object();
+}
+
 char* parse_string(json_t* json) {
     return json_string_value(json);
+}
+
+json_t* compose_string(char* string) {
+    return json_string(string);
 }
 
 #define MEMBER_FIELDS \
@@ -215,6 +246,10 @@ Member parse_member(json_t* json) {
     #undef Y
     #undef Z
     return object;
+}
+
+json_t* compose_member(Member object) {
+    return json_object();
 }
 
 #define CHANNEL_FIELDS \
@@ -249,6 +284,10 @@ Channel parse_channel(json_t* json) {
     return object;
 }
 
+json_t* compose_channel(Channel object) {
+    return json_object();
+}
+
 #define PRESENCE_FIELDS \
     Z(User, user, user) \
     Y(Role, roles, role) \
@@ -270,6 +309,10 @@ Presence parse_presence(json_t* json) {
     #undef Y
     #undef Z
     return object;
+}
+
+json_t* compose_presence(Presence object) {
+    return json_object();
 }
 
 #define GUILD_FIELDS \
@@ -324,10 +367,18 @@ Guild parse_guild(json_t* json) {
     return object;
 }
 
+json_t* compose_guild(Guild object) {
+    return json_object();
+}
+
 ChannelMention parse_channel_mention(json_t* json) {
     ChannelMention object;
     // TODO
     return object;
+}
+
+json_t* compose_channel_mention(ChannelMention object) {
+    return json_object();
 }
 
 MessageActivity parse_message_activity(json_t* json) {
@@ -336,10 +387,18 @@ MessageActivity parse_message_activity(json_t* json) {
     return object;
 }
 
+json_t* compose_message_activity(MessageActivity object) {
+    return json_object();
+}
+
 MessageApplication parse_message_application(json_t* json) {
     MessageApplication object;
     // TODO
     return object;
+}
+
+json_t* compose_message_application(MessageApplication object) {
+    return json_object();
 }
 
 MessageReference parse_message_reference(json_t* json) {
@@ -348,10 +407,18 @@ MessageReference parse_message_reference(json_t* json) {
     return object;
 }
 
+json_t* compose_message_reference(MessageReference object) {
+    return json_object();
+}
+
 Embed parse_embed(json_t* json) {
     Embed object;
     // TODO
     return object;
+}
+
+json_t* compose_embed(Embed object) {
+    return json_object();
 }
 
 Attachment parse_attachment(json_t* json) {
@@ -360,10 +427,18 @@ Attachment parse_attachment(json_t* json) {
     return object;
 }
 
+json_t* compose_attachment(Attachment object) {
+    return json_object();
+}
+
 Reaction parse_reaction(json_t* json) {
     Reaction object;
     // TODO
     return object;
+}
+
+json_t* compose_reaction(Reaction object) {
+    return json_object();
 }
 
 #define MESSAGE_FIELDS \
