@@ -74,11 +74,13 @@
  */
 #define COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER) { \
     json_t* array = json_array(); \
-    int length = object.num_##NAME; \
-    for (int i = 0; i < length; i++) { \
-        C_TYPE value        = object.NAME[i]; \
-        json_t* transformed = compose_##COMPOSER(value); \
-        json_array_append_new(array, transformed); \
+    if (object.NAME != NULL) { \
+        int length = object.num_##NAME; \
+        for (int i = 0; i < length; i++) { \
+            C_TYPE value        = object.NAME[i]; \
+            json_t* transformed = compose_##COMPOSER(value); \
+            json_array_append_new(array, transformed); \
+        } \
     } \
     json_object_set(json, #NAME, array); }
     

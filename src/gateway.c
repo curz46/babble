@@ -11,6 +11,7 @@
 #include "payload.h"
 #include "entities.h"
 #include "routes.h"
+#include "http.h"
 
 #define EV_LOOP EV_DEFAULT
 
@@ -97,11 +98,16 @@ void handle_message_create(json_t* json) {
     printf("Channel=%s\n", message.channel_id);
 
     if (strcmp(message.content, "bb!test") == 0) {
-        Message new_message;
+        Message new_message = {0};
         new_message.content = "Hello, world!";
-        Message created_message;
+        Message created_message = {0};
         printf("Responding...\n");
-        create_message(message.channel_id, new_message, &created_message);
+        int result = create_message(message.channel_id, new_message, &created_message);
+
+        if (result != REQUEST_SUCCESS) {
+            printf("Failed to create message.\n");
+            return;
+        }
 
         printf("Created message:\n");
         printf("Content=%s\n", created_message.content);

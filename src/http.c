@@ -10,7 +10,9 @@ const int REQUEST_ERR_CURL_FAIL  = 102;
 const int REQUEST_ERR_HTTP_CODE  = 103;
 const int REQUEST_ERR_JSON_PARSE = 104;
 
+// TODO: free strings
 int http_post_json(char* url, json_t* json, json_t** response) {
+    printf("POST: %s\n", url);
     const CURL* curl = curl_easy_init();
     if (!curl) {
         return REQUEST_ERR_CURL_INIT;
@@ -20,21 +22,35 @@ int http_post_json(char* url, json_t* json, json_t** response) {
     char* data = "";
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 
-    // Add authorization headers
+    // Create authorization header
+    struct curl_slist *headers = NULL;
+    char* token = getenv("TOKEN"); // TODO: Get from client
+    char* auth_header[1000];
+    sprintf(auth_header, "Authorization: Bot %s", token);
+    headers = curl_slist_append(headers, auth_header);
+    // Content-Type
+    headers = curl_slist_append(headers, "Content-Type: application/json");
 
-    struct curl_slist *slist = NULL;
-    slist = curl_slist_append(slist, "");
+    // Set headers
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+    // Set POST data
+    char* post_data = json_dumps(json, 0);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
 
     CURLcode result = curl_easy_perform(curl);
     if (result == CURLE_OK) {
         int response_code;
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+        printf("Response code: %i\n", response_code);
         if (response_code / 100 != 2) {
             return REQUEST_ERR_HTTP_CODE;
         }
     } else {
         return REQUEST_ERR_CURL_FAIL;
     }
+
+    printf("Body: %s\n", data);
 
     // code==2xx
     if (response == NULL) {
