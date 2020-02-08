@@ -99,10 +99,11 @@ void handle_message_create(json_t* json) {
 
     if (strcmp(message.content, "bb!test") == 0) {
         Message new_message = {0};
+        new_message.channel_id = message.channel_id;
         new_message.content = "Hello, world!";
         Message created_message = {0};
         printf("Responding...\n");
-        int result = create_message(message.channel_id, new_message, &created_message);
+        int result = create_message(new_message, &created_message);
 
         if (result != REQUEST_SUCCESS) {
             printf("Failed to create message: result=%i\n", result);
@@ -113,6 +114,29 @@ void handle_message_create(json_t* json) {
         printf("Content=%s\n", created_message.content);
         printf("Author=%s\n", created_message.author.username);
         printf("Channel=%s\n", created_message.channel_id);
+    } else if (strcmp(message.content, "bb!edit") == 0) {
+        int result;
+
+        Message new_message = {0};
+        new_message.channel_id = message.channel_id;
+        new_message.content = "Original content";
+        Message created = {0};
+        result = create_message(new_message, &created);
+
+        if (result != REQUEST_SUCCESS) {
+            printf("Failed to create message.\n");
+            return;
+        }
+
+        new_message.id = created.id;
+        new_message.content = "Edited content";
+        result = edit_message(new_message, NULL);
+
+        if (result != REQUEST_SUCCESS) {
+            printf("Failed to edit message.\n");
+        }
+
+        // TODO: new_message & created must have all their props freed
     }
 }
 

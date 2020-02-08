@@ -1,3 +1,6 @@
+#ifndef BABBLE_ENTITIES
+#define BABBLE_ENTITIES
+
 #include <stdbool.h>
 
 #include <jansson.h>
@@ -477,3 +480,5 @@ json_t* compose_message_reference(MessageReference object);
 
 Message parse_message(json_t* json);
 json_t* compose_message(Message object);
+
+#endif

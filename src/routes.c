@@ -25,9 +25,10 @@ void enforce_keys(json_t* json, char* keys[], int num_keys) {
     }
 }
 
-int create_message(char* channel_id, Message message, Message* created) {
+int create_message(Message message, Message* created) {
+    // TODO: need a more consistent solution
     char url[1000];
-    format_route(url, CREATE_MESSAGE, channel_id);
+    format_route(url, CREATE_MESSAGE, message.channel_id);
     
     json_t* json = compose_message(message);
     json_t* response;
@@ -39,6 +40,25 @@ int create_message(char* channel_id, Message message, Message* created) {
     int result = http_post_json(url, json, &response);
     if (result == REQUEST_SUCCESS && created != NULL) {
         *created = parse_message(response);
+    }
+
+    return result;
+}
+
+int edit_message(Message message, Message* edited) {
+    char url[1000];
+    format_route(url, EDIT_MESSAGE, message.channel_id, message.id);
+
+    json_t* json = compose_message(message);
+    json_t* response;
+
+    char* keys[] = {"content", "embed", "flags"};
+    int num_keys = sizeof(keys) / sizeof(keys[0]);
+    enforce_keys(json, keys, num_keys);
+
+    int result = http_patch_json(url, json, &response);
+    if (result == REQUEST_SUCCESS && edited != NULL) {
+        *edited = parse_message(response);
     }
 
     return result;
