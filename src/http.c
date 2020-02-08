@@ -10,20 +10,15 @@ const int REQUEST_ERR_CURL_FAIL  = 102;
 const int REQUEST_ERR_HTTP_CODE  = 103;
 const int REQUEST_ERR_JSON_PARSE = 104;
 
-// TODO: free strings
-int http_post_json(char* url, json_t* json, json_t** response) {
-    printf("POST: %s\n", url);
-    const CURL* curl = curl_easy_init();
-    if (!curl) {
-        return REQUEST_ERR_CURL_INIT;
-    }
-    curl_easy_setopt(curl, CURLOPT_URL, url);
+void set_writefunc(const CURL* curl, char** response) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_on_write);
-    char* data = "";
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+}
 
-    // Create authorization header
+struct curl_slist* make_and_set_headers(const CURL* curl) {
     struct curl_slist *headers = NULL;
+
+    // Authorization
     char* token = getenv("TOKEN"); // TODO: Get from client
     char* auth_header[1000];
     sprintf(auth_header, "Authorization: Bot %s", token);
@@ -33,37 +28,60 @@ int http_post_json(char* url, json_t* json, json_t** response) {
 
     // Set headers
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+}
+
+int http_post(char* url, char* body, char** response) {
+    const CURL* curl = curl_easy_init();
+    if (!curl) {
+        return REQUEST_ERR_CURL_INIT;
+    }
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+
+    char* data = "";
+    set_writefunc(curl, &data);
+    struct curl_slist* headers = make_and_set_headers(curl);
 
     // Set POST data
-    char* post_data = json_dumps(json, 0);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body);
 
     CURLcode result = curl_easy_perform(curl);
-    if (result == CURLE_OK) {
-        int response_code;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-        printf("Response code: %i\n", response_code);
-        if (response_code / 100 != 2) {
-            return REQUEST_ERR_HTTP_CODE;
-        }
-    } else {
+    curl_slist_free_all(headers);
+    if (result != CURLE_OK) {
         return REQUEST_ERR_CURL_FAIL;
     }
 
-    printf("Body: %s\n", data);
-
-    // code==2xx
-    if (response == NULL) {
-        return REQUEST_SUCCESS;
+    int response_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+    if (response_code / 100 != 2) {
+        return REQUEST_ERR_HTTP_CODE;
     }
 
-    json_error_t parse_error;
-    json_t* parsed = json_loads(data, 0, &parse_error);
+    // response_code == 2xx
+    if (response != NULL) {
+        *response = data;
+    }
 
-    //if (parse_error) {
-    //    return REQUEST_ERR_JSON_PARSE;
-    //}
-
-    *response = parsed;
     return REQUEST_SUCCESS;
+}
+
+int http_post_json(char* url, json_t* body, json_t** response) {
+    char* dumped_body   = json_dumps(body, 0);
+    char* received_body = "";
+
+    int result = http_post(url, dumped_body, &received_body);
+    free(dumped_body);
+
+    // response_code == 2xx
+    if (response != NULL) {
+        json_error_t err;
+        json_t* parsed = json_loads(received_body, 0, &err);
+
+        if (parsed == NULL) {
+            return REQUEST_ERR_JSON_PARSE;
+        }
+
+        *response = parsed;
+    }
+
+    return result;
 }
