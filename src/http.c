@@ -12,7 +12,7 @@ const int REQUEST_ERR_JSON_PARSE = 104;
 
 void set_writefunc(const CURL* curl, char** response) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_on_write);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
 }
 
 struct curl_slist* make_and_set_headers(const CURL* curl) {
@@ -32,10 +32,13 @@ struct curl_slist* make_and_set_headers(const CURL* curl) {
 
 int handle_json(int result, char* received_body, json_t** response) {
     if (response != NULL) {
+        printf("%s\n", received_body);
+
         json_error_t err;
         json_t* parsed = json_loads(received_body, 0, &err);
 
         if (parsed == NULL) {
+            printf("ERROR: Parsing failed: %s\n", err.text);
             return REQUEST_ERR_JSON_PARSE;
         }
 

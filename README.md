@@ -8,11 +8,15 @@ and JavaScript.
 
 ### 2. Where is it? (roadmap)
 
-- [ ] Gateway
-	- [ ] Authorization
-	- [ ] Recognize all payload types
-- [ ] Expose Discord's REST API through simple method calls
-	- [ ] Channel endpoins
+- [-] Gateway
+	- [x] Authorization
+	- [-] Recognize all payload types
+- [-] Expose Discord's REST API through simple method calls
+    - [-] HTTP
+        - [ ] Verify HTTP GET is working
+        - [ ] Verify HTTP PUT is working
+        - [ ] Verify HTTP PATCH is working
+	- [-] Channel endpoints
 	- [ ] Guild endpoints
 	- [ ] User endpoints
 	- [ ] Invite endpoints

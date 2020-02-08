@@ -105,7 +105,7 @@ void handle_message_create(json_t* json) {
         int result = create_message(message.channel_id, new_message, &created_message);
 
         if (result != REQUEST_SUCCESS) {
-            printf("Failed to create message.\n");
+            printf("Failed to create message: result=%i\n", result);
             return;
         }
 
