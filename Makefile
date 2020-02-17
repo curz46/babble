@@ -19,14 +19,15 @@ LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a \
 		  -pthread -ldl -lldap -llber -lz -lssl -lcrypto -lm -lnghttp2 -lidn2 -lrtmp -lpsl -lbrotlidec
 SOURCE_EXT =
 
+.PHONY: all
+all: pre $(exe)
 
-all: pre babble
-
+.PHONY: pre
 pre:
 	@mkdir -p bin
 	@mkdir -p out
 
-babble: $(obj) 
+$(exe): $(obj) 
 	@echo "Compiling babble..."
 	gcc $(CFLAGS) -o $(exe) $(SOURCE_EXT) $^ $(LDFLAGS)
 	@echo "Done"
