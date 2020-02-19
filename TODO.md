@@ -1,0 +1,4 @@
+- [ ] Correct codestyle ('Message' should be 'message_t', 'char* a' should be 'char *a')
+- [ ] Replace returned error codes (where a return value exists) with global error code
+- [ ] Prepend user-facing functions with 'bbl_'
+- [ ] Event bus & library API
