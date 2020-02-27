@@ -2,7 +2,9 @@
 
 #include <jansson.h>
 
-#include "entities.h"
+#include "babble/entities.h"
+
+#include "json.h"
 
 /**
  * PARSE expands to a block of code that:

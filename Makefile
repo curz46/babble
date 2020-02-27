@@ -2,16 +2,16 @@
 
 src = $(wildcard src/*.c)
 obj = $(patsubst src%,out%,$(src:.c=.o))
-dep = $(obj:.o=.d))
 exe = bin/babble
 
 envfile = .env
 include $(envfile)
 
-INCLUDE = -Ivendor/curl/include \
-				  -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer \
-				  -Ivendor/libev \
-				  -Ivendor/jansson/src
+INCLUDE = -Iinclude \
+		  -Ivendor/curl/include \
+		  -Ivendor/libuwsc/src -Ivendor/libuwsc/src/buffer \
+		  -Ivendor/libev \
+		  -Ivendor/jansson/src
 LDFLAGS = -Lvendor/curl/lib/.libs -l:libcurl.a \
 		  -Lvendor/libev/.libs -l:libev.a \
 		  -Lvendor/libuwsc/build/src -l:libuwsc.a \
@@ -27,15 +27,10 @@ pre:
 	@mkdir -p bin
 	@mkdir -p out
 
-$(exe): $(obj) 
+$(exe): $(obj)
 	@echo "Compiling babble..."
 	gcc $(CFLAGS) -o $(exe) $(SOURCE_EXT) $^ $(LDFLAGS)
 	@echo "Done"
-
--include $(dep)
-
-%.d: %.c
-	@$(CPP) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
 
 out/%.o: src/%.c
 	gcc -g3 $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
@@ -75,7 +70,3 @@ jansson:
 .PHONY: clean
 clean:
 	rm -f bin/babble $(obj)
-
-.PHONY: cleandep
-cleandep:
-	rm -f $(dep)

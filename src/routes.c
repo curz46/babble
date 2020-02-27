@@ -1,12 +1,21 @@
-#include "err.h"
-#include "routes.h"
-#include "entities.h"
-#include "http.h"
-
 #include <stdbool.h>
 #include <jansson.h>
 
-int route_errno;
+#include "babble/err.h"
+#include "babble/routes.h"
+#include "babble/entities.h"
+
+#include "http.h"
+#include "json.h"
+
+#define BASE "https://discordapp.com/api"
+#define GATEWAY_GET "/gateway"
+
+#define CREATE_MESSAGE "/channels/%s/messages"
+#define EDIT_MESSAGE "/channels/%s/messages/%s"
+
+#define format_route(URL, ROUTE, args...) \
+    sprintf(URL, BASE ROUTE, args)
 
 bool str_array_contains(char* value, char* array[], int length) {
     for (int i = 0; i < length; i++) {
@@ -28,7 +37,7 @@ void enforce_keys(json_t* json, char* keys[], int num_keys) {
     }
 }
 
-int bbl_create_message(message_t message, message_t* created) {
+bbl_error_t bbl_create_message(message_t message, message_t* created) {
     // TODO: need a more consistent solution
     char url[1000];
     format_route(url, CREATE_MESSAGE, message.channel_id);
@@ -48,7 +57,7 @@ int bbl_create_message(message_t message, message_t* created) {
     return result;
 }
 
-int bbl_edit_message(message_t message, message_t* edited) {
+bbl_error_t bbl_edit_message(message_t message, message_t* edited) {
     char url[1000];
     format_route(url, EDIT_MESSAGE, message.channel_id, message.id);
 

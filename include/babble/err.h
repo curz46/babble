@@ -9,4 +9,6 @@ typedef enum bbl_error_t {
     ERR_REQUEST_JSON_PARSE
 } bbl_error_t;
 
+char* bbl_error_message(bbl_error_t error);
+
 #endif
