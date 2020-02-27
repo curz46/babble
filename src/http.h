@@ -1,8 +1,6 @@
 #ifndef BABBLE_HTTP
 #define BABBLE_HTTP
 
-#include "err.h"
-
 #include <jansson.h>
 
 bbl_error_t http_get(char* url, char** response);

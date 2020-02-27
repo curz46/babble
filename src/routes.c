@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <jansson.h>
 
-#include "babble/err.h"
+#include "babble/error.h"
 #include "babble/routes.h"
 #include "babble/entities.h"
 

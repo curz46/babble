@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <jansson.h>
 
-#include "babble/err.h"
+#include "babble/error.h"
 #include "babble/entities.h"
 #include "babble/routes.h"
 
