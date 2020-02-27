@@ -2,4 +2,5 @@
 - [x] Replace returned error codes (where a return value exists) with enum
 - [x] Prepend user-facing functions with 'bbl_'
 - [x] Move public API to include/
+- [x] Make library work with message_t* rather than message_t
 - [ ] Event bus & library API

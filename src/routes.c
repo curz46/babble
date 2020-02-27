@@ -26,10 +26,10 @@ void enforce_keys(json_t* json, char* keys[], int num_keys) {
     }
 }
 
-bbl_error_t bbl_create_message(message_t message, message_t* created) {
+bbl_error_t bbl_create_message(char* channel_id, message_t* message, message_t** created) {
     // TODO: need a more consistent solution
     char url[1000];
-    format_route(url, CREATE_MESSAGE, message.channel_id);
+    format_route(url, CREATE_MESSAGE, channel_id);
     
     json_t* json = compose_message(message);
     json_t* response;
@@ -46,9 +46,9 @@ bbl_error_t bbl_create_message(message_t message, message_t* created) {
     return result;
 }
 
-bbl_error_t bbl_edit_message(message_t message, message_t* edited) {
+bbl_error_t bbl_edit_message(message_t* message, message_t** edited) {
     char url[1000];
-    format_route(url, EDIT_MESSAGE, message.channel_id, message.id);
+    format_route(url, EDIT_MESSAGE, message->channel_id, message->id);
 
     json_t* json = compose_message(message);
     json_t* response;

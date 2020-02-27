@@ -87,61 +87,62 @@ void handle_ready(json_t* json) {
 }
 
 void handle_guild_create(json_t* json) {
-    guild_t guild = parse_guild(json);
-    for (int i = 0; i < guild.num_members; i++) {
-        member_t member = guild.members[i];
+    guild_t* guild = parse_guild(json);
+    for (int i = 0; i < guild->num_members; i++) {
+        member_t member = guild->members[i];
         if (member.user.bot)
             printf("member_t: %s\n", member.user.username);
     }
 }
 
 void handle_message_create(json_t* json) {
-    message_t message = parse_message(json);
+    message_t* message = parse_message(json);
     printf("Received message:\n");
-    printf("Content=%s\n", message.content);
-    printf("Author=%s\n", message.author.username);
-    printf("Channel=%s\n", message.channel_id);
+    printf("Content=%s\n", message->content);
+    printf("Author=%s\n", message->author.username);
+    printf("Channel=%s\n", message->channel_id);
 
-    if (strcmp(message.content, "bb!test") == 0) {
+    if (strcmp(message->content, "bb!test") == 0) {
         message_t new_message = {0};
-        new_message.channel_id = message.channel_id;
         new_message.content = "Hello, world!";
-        message_t created_message = {0};
+        message_t* created_message;
         printf("Responding...\n");
-        int result = bbl_create_message(new_message, &created_message);
-
+        
+        bbl_error_t result = bbl_create_message(message->channel_id, &new_message, &created_message);
         if (result != ERR_OK) {
             printf("Failed to create message: result=%i\n", result);
             return;
         }
 
         printf("Created message:\n");
-        printf("Content=%s\n", created_message.content);
-        printf("Author=%s\n", created_message.author.username);
-        printf("Channel=%s\n", created_message.channel_id);
-    } else if (strcmp(message.content, "bb!edit") == 0) {
+        printf("Content=%s\n", created_message->content);
+        printf("Author=%s\n", created_message->author.username);
+        printf("Channel=%s\n", created_message->channel_id);
+
+        //free_message(new_message);
+    } else if (strcmp(message->content, "bb!edit") == 0) {
         int result;
 
         message_t new_message = {0};
-        new_message.channel_id = message.channel_id;
         new_message.content = "Original content";
-        message_t created = {0};
-        result = bbl_create_message(new_message, &created);
+        message_t* created;
 
+        result = bbl_create_message(message->channel_id, &new_message, &created);
         if (result != ERR_OK) {
             printf("Failed to create message.\n");
             return;
         }
 
-        new_message.id = created.id;
+        new_message.id = created->id;
+        new_message.channel_id = created->channel_id;
         new_message.content = "Edited content";
-        result = bbl_edit_message(new_message, NULL);
+        result = bbl_edit_message(&new_message, NULL);
 
         if (result != ERR_OK) {
             printf("Failed to edit message.\n");
         }
 
-        // TODO: new_message & created must have all their props freed
+        //free_message(new_message);
     }
 }
 

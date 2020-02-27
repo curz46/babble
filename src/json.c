@@ -15,7 +15,7 @@
 #define PARSE(C_TYPE, JSON_TYPE, NAME) { \
     json_t* property = json_object_get(json, #NAME); \
     C_TYPE  value    = (C_TYPE) json_##JSON_TYPE##_value(property); \
-    object.NAME      = value; }
+    object->NAME     = value; }
 
 /**
  * PARSE_OBJECT is similar to PARSE, but it allows some arbitrary parse
@@ -26,8 +26,8 @@
  */
 #define PARSE_OBJECT(C_TYPE, NAME, PARSER) { \
     json_t* property = json_object_get(json, #NAME); \
-    C_TYPE  value    = parse_##PARSER(property); \
-    object.NAME      = value; }
+    C_TYPE*  value   = parse_##PARSER(property); \
+    object->NAME     = *value; }
 
 /**
  * PARSE_OBJECT_ARRAY is similar to PARSE_OBJECT, but rather than expecting
@@ -40,10 +40,10 @@
     int index; \
     json_t* value; \
     json_array_foreach(json_array, index, value) { \
-        array[index] = parse_##PARSER(value); \
+        array[index] = *parse_##PARSER(value); \
     } \
-    object.NAME = array; \
-    object.num_##NAME = length; }
+    object->NAME = array; \
+    object->num_##NAME = length; }
 
 /**
  * The reverse of PARSE. It should:
@@ -52,7 +52,7 @@
  *    object "json".
  */
 #define COMPOSE(C_TYPE, JSON_TYPE, NAME) { \
-    C_TYPE value    = object.NAME; \
+    C_TYPE value    = object->NAME; \
     json_t* wrapped = json_##JSON_TYPE(value); \
     json_object_set(json, #NAME, wrapped); } \
 
@@ -64,8 +64,8 @@
  *    json_t* object "json".
  */
 #define COMPOSE_OBJECT(C_TYPE, NAME, COMPOSER) { \
-    C_TYPE value        = object.NAME; \
-    json_t* transformed = compose_##COMPOSER(value); \
+    C_TYPE value        = object->NAME; \
+    json_t* transformed = compose_##COMPOSER(&value); \
     json_object_set(json, #NAME, transformed); }
 
 /**
@@ -77,11 +77,11 @@
  */
 #define COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER) { \
     json_t* array = json_array(); \
-    if (object.NAME != NULL) { \
-        int length = object.num_##NAME; \
+    if (object->NAME != NULL) { \
+        int length = object->num_##NAME; \
         for (int i = 0; i < length; i++) { \
-            C_TYPE value        = object.NAME[i]; \
-            json_t* transformed = compose_##COMPOSER(value); \
+            C_TYPE value        = object->NAME[i]; \
+            json_t* transformed = compose_##COMPOSER(&value); \
             json_array_append_new(array, transformed); \
         } \
     } \
@@ -93,8 +93,8 @@
     X(int, integer, allow) \
     X(int, integer, deny)
 
-overwrite_t parse_overwrite(json_t* json) {
-    overwrite_t object;
+overwrite_t* parse_overwrite(json_t* json) {
+    overwrite_t* object = (overwrite_t*) malloc(sizeof(overwrite_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -105,7 +105,7 @@ overwrite_t parse_overwrite(json_t* json) {
     return object;
 }
 
-json_t* compose_overwrite(overwrite_t object) {
+json_t* compose_overwrite(const overwrite_t* object) {
     // TODO
     return json_object();
 }
@@ -124,8 +124,8 @@ json_t* compose_overwrite(overwrite_t object) {
     X(int, integer, flags) \
     X(int, integer, premium_type)
 
-user_t parse_user(json_t* json) {
-    user_t object;
+user_t* parse_user(json_t* json) {
+    user_t* object = (user_t*) malloc(sizeof(user_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -136,18 +136,18 @@ user_t parse_user(json_t* json) {
     return object;
 }
 
-json_t* compose_user(user_t object) {
+json_t* compose_user(const user_t* object) {
     // TODO
     return json_object();
 }
 
 // TODO: cba rn
-activity_t parse_activity(json_t* json) {
-    activity_t object;
+activity_t* parse_activity(json_t* json) {
+    activity_t* object = (activity_t*) malloc(sizeof(activity_t));
     return object;
 }
 
-json_t* compose_activity(activity_t object) {
+json_t* compose_activity(const activity_t* object) {
     // TODO
     return json_object();
 }
@@ -157,8 +157,8 @@ json_t* compose_activity(activity_t object) {
     X(char*, string, mobile) \
     X(char*, string, web)
 
-client_status_t parse_client_status(json_t* json) {
-    client_status_t object;
+client_status_t* parse_client_status(json_t* json) {
+    client_status_t* object = (client_status_t*) malloc(sizeof(client_status_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -169,7 +169,7 @@ client_status_t parse_client_status(json_t* json) {
     return object;
 }
 
-json_t* compose_client_status(client_status_t object) {
+json_t* compose_client_status(const client_status_t* object) {
     return json_object();
 }
 
@@ -183,8 +183,8 @@ json_t* compose_client_status(client_status_t object) {
     X(bool, boolean, managed) \
     X(bool, boolean, mentionable)
  
-role_t parse_role(json_t* json) {
-    role_t object;
+role_t* parse_role(json_t* json) {
+    role_t* object = (role_t*) malloc(sizeof(role_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -195,7 +195,7 @@ role_t parse_role(json_t* json) {
     return object;
 }
 
-json_t* compose_role(role_t object) {
+json_t* compose_role(const role_t* object) {
     return json_object();
 }
 
@@ -208,8 +208,8 @@ json_t* compose_role(role_t object) {
     X(bool, boolean, managed) \
     X(bool, boolean, animated)
 
-emoji_t parse_emoji(json_t* json) {
-    emoji_t object;
+emoji_t* parse_emoji(json_t* json) {
+    emoji_t* object = (emoji_t*) malloc(sizeof(emoji_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -220,7 +220,7 @@ emoji_t parse_emoji(json_t* json) {
     return object;
 }
 
-json_t* compose_emoji(emoji_t object) {
+json_t* compose_emoji(const emoji_t* object) {
     return json_object();
 }
 
@@ -234,7 +234,7 @@ char* parse_string(json_t* json) {
     return copy;
 }
 
-json_t* compose_string(char* string) {
+json_t* compose_string(const char* string) {
     return json_string(string);
 }
 
@@ -247,8 +247,8 @@ json_t* compose_string(char* string) {
     X(bool, boolean, deaf) \
     X(bool, boolean, mute)
 
-member_t parse_member(json_t* json) {
-    member_t object;
+member_t* parse_member(json_t* json) {
+    member_t* object = (member_t*) malloc(sizeof(member_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -259,7 +259,7 @@ member_t parse_member(json_t* json) {
     return object;
 }
 
-json_t* compose_member(member_t object) {
+json_t* compose_member(const member_t* object) {
     return json_object();
 }
 
@@ -283,8 +283,8 @@ json_t* compose_member(member_t object) {
     X(char*, string, parent_id) \
     X(int, integer, last_pin_timestamp)
 
-channel_t parse_channel(json_t* json) {
-    channel_t object;
+channel_t* parse_channel(json_t* json) {
+    channel_t* object = (channel_t*) malloc(sizeof(channel_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -295,7 +295,7 @@ channel_t parse_channel(json_t* json) {
     return object;
 }
 
-json_t* compose_channel(channel_t object) {
+json_t* compose_channel(const channel_t* object) {
     return json_object();
 }
 
@@ -310,8 +310,8 @@ json_t* compose_channel(channel_t object) {
     X(int, integer, premium_since) \
     X(char*, string, nick)
 
-presence_t parse_presence(json_t* json) {
-    presence_t object;
+presence_t* parse_presence(json_t* json) {
+    presence_t* object = (presence_t*) malloc(sizeof(presence_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -322,7 +322,7 @@ presence_t parse_presence(json_t* json) {
     return object;
 }
 
-json_t* compose_presence(presence_t object) {
+json_t* compose_presence(const presence_t* object) {
     return json_object();
 }
 
@@ -366,8 +366,8 @@ json_t* compose_presence(presence_t object) {
     X(int, integer, premium_subscription_count) \
     X(char*, string, preferred_locale)
 
-guild_t parse_guild(json_t* json) {
-    guild_t object;
+guild_t* parse_guild(json_t* json) {
+    guild_t* object = (guild_t*) malloc(sizeof(guild_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -378,77 +378,77 @@ guild_t parse_guild(json_t* json) {
     return object;
 }
 
-json_t* compose_guild(guild_t object) {
+json_t* compose_guild(const guild_t* object) {
     return json_object();
 }
 
-channel_mention_t parse_channel_mention(json_t* json) {
-    channel_mention_t object;
+channel_mention_t* parse_channel_mention(json_t* json) {
+    channel_mention_t* object = (channel_mention_t*) malloc(sizeof(channel_mention_t));
     // TODO
     return object;
 }
 
-json_t* compose_channel_mention(channel_mention_t object) {
+json_t* compose_channel_mention(const channel_mention_t* object) {
     return json_object();
 }
 
-message_activity_t parse_message_activity(json_t* json) {
-    message_activity_t object;
+message_activity_t* parse_message_activity(json_t* json) {
+    message_activity_t* object = (message_activity_t*) malloc(sizeof(message_activity_t));
     // TODO
     return object;
 }
 
-json_t* compose_message_activity(message_activity_t object) {
+json_t* compose_message_activity(const message_activity_t* object) {
     return json_object();
 }
 
-message_application_t parse_message_application(json_t* json) {
-    message_application_t object;
+message_application_t* parse_message_application(json_t* json) {
+    message_application_t* object = (message_activity_t*) malloc(sizeof(message_application_t));
     // TODO
     return object;
 }
 
-json_t* compose_message_application(message_application_t object) {
+json_t* compose_message_application(const message_application_t* object) {
     return json_object();
 }
 
-message_reference_t parse_message_reference(json_t* json) {
-    message_reference_t object;
+message_reference_t* parse_message_reference(json_t* json) {
+    message_reference_t* object = (message_reference_t*) malloc(sizeof(message_reference_t));
     // TODO
     return object;
 }
 
-json_t* compose_message_reference(message_reference_t object) {
+json_t* compose_message_reference(const message_reference_t* object) {
     return json_object();
 }
 
-embed_t parse_embed(json_t* json) {
-    embed_t object;
+embed_t* parse_embed(json_t* json) {
+    embed_t* object = (embed_t*) malloc(sizeof(embed_t));
     // TODO
     return object;
 }
 
-json_t* compose_embed(embed_t object) {
+json_t* compose_embed(const embed_t* object) {
     return json_object();
 }
 
-attachment_t parse_attachment(json_t* json) {
-    attachment_t object;
+attachment_t* parse_attachment(json_t* json) {
+    attachment_t* object = (attachment_t*) malloc(sizeof(attachment_t));
     // TODO
     return object;
 }
 
-json_t* compose_attachment(attachment_t object) {
+json_t* compose_attachment(const attachment_t* object) {
     return json_object();
 }
 
-reaction_t parse_reaction(json_t* json) {
-    reaction_t object;
+reaction_t* parse_reaction(json_t* json) {
+    reaction_t* object = (reaction_t*) malloc(sizeof(reaction_t));
     // TODO
     return object;
 }
 
-json_t* compose_reaction(reaction_t object) {
+json_t* compose_reaction(const reaction_t* object) {
     return json_object();
 }
 
@@ -478,8 +478,8 @@ json_t* compose_reaction(reaction_t object) {
     Z(message_reference_t, message_reference, message_reference) \
     X(int, integer, flags)
 
-message_t parse_message(json_t* json) {
-    message_t object;
+message_t* parse_message(json_t* json) {
+    message_t* object = (message_t*) malloc(sizeof(message_t));
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -490,7 +490,7 @@ message_t parse_message(json_t* json) {
     return object;
 }
 
-json_t* compose_message(message_t object) {
+json_t* compose_message(const message_t* object) {
     json_t* json = json_object();
     #define X(C_TYPE, JSON_TYPE, NAME) COMPOSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER)
