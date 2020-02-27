@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <jansson.h>
 
+#include "err.h"
 #include "gateway.h"
 #include "payload.h"
 #include "entities.h"
@@ -105,7 +106,7 @@ void handle_message_create(json_t* json) {
         printf("Responding...\n");
         int result = create_message(new_message, &created_message);
 
-        if (result != REQUEST_SUCCESS) {
+        if (result != ERR_OK) {
             printf("Failed to create message: result=%i\n", result);
             return;
         }
@@ -123,7 +124,7 @@ void handle_message_create(json_t* json) {
         message_t created = {0};
         result = create_message(new_message, &created);
 
-        if (result != REQUEST_SUCCESS) {
+        if (result != ERR_OK) {
             printf("Failed to create message.\n");
             return;
         }
@@ -132,7 +133,7 @@ void handle_message_create(json_t* json) {
         new_message.content = "Edited content";
         result = edit_message(new_message, NULL);
 
-        if (result != REQUEST_SUCCESS) {
+        if (result != ERR_OK) {
             printf("Failed to edit message.\n");
         }
 

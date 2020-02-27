@@ -1,9 +1,12 @@
+#include "err.h"
 #include "routes.h"
 #include "entities.h"
 #include "http.h"
 
 #include <stdbool.h>
 #include <jansson.h>
+
+int route_errno;
 
 bool str_array_contains(char* value, char* array[], int length) {
     for (int i = 0; i < length; i++) {
@@ -38,7 +41,7 @@ int create_message(message_t message, message_t* created) {
     enforce_keys(json, keys, num_keys);
 
     int result = http_post_json(url, json, &response);
-    if (result == REQUEST_SUCCESS && created != NULL) {
+    if (result == ERR_OK && created != NULL) {
         *created = parse_message(response);
     }
 
@@ -57,7 +60,7 @@ int edit_message(message_t message, message_t* edited) {
     enforce_keys(json, keys, num_keys);
 
     int result = http_patch_json(url, json, &response);
-    if (result == REQUEST_SUCCESS && edited != NULL) {
+    if (result == ERR_OK && edited != NULL) {
         *edited = parse_message(response);
     }
 
