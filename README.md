@@ -8,24 +8,28 @@ and JavaScript.
 
 ### 2. Where is it? (roadmap)
 
-- [-] Gateway
+- [ ] *Gateway*
 	- [x] Authorization
-	- [-] Recognize all payload types
-- [-] Expose Discord's REST API through simple method calls
-    - [-] HTTP
-        - [ ] Verify HTTP GET is working
-        - [ ] Verify HTTP PUT is working
-        - [ ] Verify HTTP PATCH is working
-	- [-] Channel endpoints
+	- [ ] *Recognize all `DISPATCH` payloads*
+- [ ] *Expose Discord's REST API through simple method calls*
+    - [ ] *http*
+        - [x] Implement http `GET`, `PUT`, `PATCH`, etc...
+        - [x] Verify `http_post` is working
+        - [x] Verify `http_patch` is working
+        - [ ] Verify `http_get` is working
+        - [ ] Verify `http_put` is working
+	- [ ] *Channel endpoints*
 	- [ ] Guild endpoints
 	- [ ] User endpoints
 	- [ ] Invite endpoints
 	- [ ] Emoji endpoints
 	- [ ] Voice endpoints
 	- [ ] Audit log endpoints
+- [ ] Event bus
+- [ ] Library API e.g. `bbl_login`
 - [ ] Caching
-	- [ ] ???
-- [ ] ???
+
+*Italics* means in-progress.
 
 ### 3. How do I build it?
 
