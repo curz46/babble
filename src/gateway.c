@@ -7,12 +7,14 @@
 #include <pthread.h>
 #include <jansson.h>
 
-#include "err.h"
+#include "babble/err.h"
+#include "babble/entities.h"
+#include "babble/routes.h"
+
 #include "gateway.h"
 #include "payload.h"
-#include "entities.h"
-#include "routes.h"
 #include "http.h"
+#include "json.h"
 
 #define EV_LOOP EV_DEFAULT
 

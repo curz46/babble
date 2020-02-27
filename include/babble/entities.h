@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <jansson.h>
 
-typedef struct {
+typedef struct user_t {
     char* id;
     char* username;
     char* discriminator;
@@ -19,7 +19,7 @@ typedef struct {
     int premium_type;
 } user_t;
 
-typedef struct {
+typedef struct role_t {
     char* id;
     char* name;
     int color;
@@ -30,7 +30,7 @@ typedef struct {
     bool mentionable;
 } role_t;
 
-typedef struct {
+typedef struct emoji_t {
     char* id;
     char* name;
     role_t* roles;
@@ -41,31 +41,31 @@ typedef struct {
     bool animated;
 } emoji_t;
 
-typedef struct {
+typedef struct activity_timestamps_t {
     int start;
     int end;
 } activity_timestamps_t;
 
-typedef struct {
+typedef struct activity_party_t {
     char* id;
     int* size;
     int num_size;
 } activity_party_t;
 
-typedef struct {
+typedef struct activity_assets_t {
     char* large_image;
     char* large_text;
     char* small_image;
     char* small_text;
 } activity_assets_t;
 
-typedef struct {
+typedef struct activity_secrets_t {
     char* join;
     char* spectate;
     char* match;
 } activity_secrets_t;
 
-typedef struct {
+typedef struct activity_t {
     char* name;
     int type;
     char* url;
@@ -80,13 +80,13 @@ typedef struct {
     int flags;
 } activity_t;
 
-typedef struct {
+typedef struct client_status_t {
     char* desktop;
     char* mobile;
     char* web;
 } client_status_t;
 
-typedef struct {
+typedef struct presence_t {
     user_t user;
     role_t* roles;
     int num_roles;
@@ -100,14 +100,14 @@ typedef struct {
     char* nick;
 } presence_t;
 
-typedef struct {
+typedef struct overwrite_t {
     char* id;
     char* type;
     int allow;
     int deny;
 } overwrite_t;
 
-typedef struct {
+typedef struct channel_t {
     char* id;
     int type;
     char* guild_id;
@@ -130,7 +130,7 @@ typedef struct {
     int last_pin_timestamp;
 } channel_t;
 
-typedef struct {
+typedef struct member_t {
     user_t user;
     char* nick;
     char** roles;
@@ -141,7 +141,7 @@ typedef struct {
     bool mute;
 } member_t;
 
-typedef struct {
+typedef struct voice_state_t {
     char* guild_id;
     char* channel_id;
     char* user_id;
@@ -155,10 +155,10 @@ typedef struct {
     bool suppress;
 } voice_state_t;
 
-typedef struct {
-    char* id;      // offset=0 bytes
-    char* name;   // offset=8 bytes
-    char* icon;   // offset=16 bytes
+typedef struct guild_t {
+    char* id;
+    char* name;
+    char* icon;
     char* splash;
     bool owner;
     char* owner_id;
@@ -204,7 +204,7 @@ typedef struct {
     char* preferred_locale;
 } guild_t;
 
-typedef struct {
+typedef struct invite_t {
     char* code;
     guild_t* guild;
     channel_t* channel;
@@ -214,7 +214,7 @@ typedef struct {
     int approximate_member_count;
 } invite_t;
 
-typedef struct {
+typedef struct voice_region_t {
     char* id;
     char* name;
     bool vip;
@@ -223,7 +223,7 @@ typedef struct {
     bool custom;
 } voice_region_t;
 
-typedef struct {
+typedef struct webhook_t {
     char* id;
     int type;
     char* guild_id;
@@ -234,13 +234,13 @@ typedef struct {
     char* token;
 } webhook_t;
 
-typedef struct {
+typedef struct audit_log_change_t {
     void* new_value;
     void* old_value;
     char* key;
 } audit_log_change_t;
 
-typedef struct {
+typedef struct audit_log_entry_info_t {
     char* delete_member_days;
     char* members_removed;
     char* channel_id;
@@ -251,7 +251,7 @@ typedef struct {
     char* role_name;
 } audit_log_entry_info_t;
 
-typedef struct {
+typedef struct audit_log_entry_t {
     char* target_id;
     audit_log_change_t* changes;
     int num_changes;
@@ -260,12 +260,12 @@ typedef struct {
     int action_type;
 } audit_log_entry_t;
 
-typedef struct {
+typedef struct account_t {
     char* id;
     char* name;
 } account_t;
 
-typedef struct {
+typedef struct integration_t {
     char* id;
     char* name;
     char* type;
@@ -279,7 +279,7 @@ typedef struct {
     int synced_at;
 } integration_t;
 
-typedef struct {
+typedef struct audit_log_t {
     webhook_t* webhooks;
     int num_webhooks;
     user_t* users;
@@ -290,7 +290,7 @@ typedef struct {
     int num_integrations;
 } audit_log_t;
 
-typedef struct {
+typedef struct attachment_t {
     char* id;
     char* filename;
     int size;
@@ -300,51 +300,51 @@ typedef struct {
     int width;
 } attachment_t;
 
-typedef struct {
+typedef struct embed_footer_t {
     char* text;
     char* icon_url;
     char* proxy_icon_url;
 } embed_footer_t;
 
-typedef struct {
+typedef struct embed_image_t {
     char* url;
     char* proxy_url;
     int height;
     int width;
 } embed_image_t;
 
-typedef struct {
+typedef struct embed_thumbnail_t {
     char* url;
     char* proxy_url;
     int height;
     int width;
 } embed_thumbnail_t;
 
-typedef struct {
+typedef struct embed_video_t {
     char* url;
     int height;
     int width;
 } embed_video_t;
 
-typedef struct {
+typedef struct embed_provider_t {
     char* name;
     char* url;
 } embed_provider_t;
 
-typedef struct {
+typedef struct embed_author_t {
     char* name;
     char* url;
     char* icon_url;
     char* proxy_icon_url;
 } embed_author_t;
 
-typedef struct {
+typedef struct embed_field_t {
     char* name;
     char* value;
     bool is_inline;
 } embed_field_t;
 
-typedef struct {
+typedef struct embed_t {
     char* title;
     char* type;
     char* description;
@@ -361,25 +361,25 @@ typedef struct {
     int num_fields;
 } embed_t;
 
-typedef struct {
+typedef struct channel_mention_t {
     char* id;
     char* guild_id;
     int type;
     char* name;
 } channel_mention_t;
 
-typedef struct {
+typedef struct reaction_t {
     int count;
     bool me;
     emoji_t emoji;
 } reaction_t;
 
-typedef struct {
+typedef struct message_activity_t {
     int ype;
     char* party_id;
 } message_activity_t;
 
-typedef struct {
+typedef struct message_application_t {
     char* id;
     char* cover_image;
     char* description;
@@ -387,13 +387,13 @@ typedef struct {
     char* name;
 } message_application_t;
 
-typedef struct {
+typedef struct message_reference_t {
     char* message_id;
     char* channel_Id;
     char* guild_id;
 } message_reference_t;
 
-typedef struct {
+typedef struct message_t {
     char* id;
     char* channel_id;
     char* guild_id;

@@ -6,7 +6,9 @@
 #include <uwsc.h>
 #include <ev.h>
 
-#include "routes.h"
+#include "babble/routes.h"
+
+#include "api.h"
 #include "gateway.h"
 #include "util.h"
 

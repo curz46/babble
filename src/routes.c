@@ -5,14 +5,9 @@
 #include "babble/routes.h"
 #include "babble/entities.h"
 
+#include "api.h"
 #include "http.h"
 #include "json.h"
-
-#define BASE "https://discordapp.com/api"
-#define GATEWAY_GET "/gateway"
-
-#define CREATE_MESSAGE "/channels/%s/messages"
-#define EDIT_MESSAGE "/channels/%s/messages/%s"
 
 #define format_route(URL, ROUTE, args...) \
     sprintf(URL, BASE ROUTE, args)
