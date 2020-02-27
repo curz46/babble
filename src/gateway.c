@@ -104,7 +104,7 @@ void handle_message_create(json_t* json) {
         new_message.content = "Hello, world!";
         message_t created_message = {0};
         printf("Responding...\n");
-        int result = create_message(new_message, &created_message);
+        int result = bbl_create_message(new_message, &created_message);
 
         if (result != ERR_OK) {
             printf("Failed to create message: result=%i\n", result);
@@ -122,7 +122,7 @@ void handle_message_create(json_t* json) {
         new_message.channel_id = message.channel_id;
         new_message.content = "Original content";
         message_t created = {0};
-        result = create_message(new_message, &created);
+        result = bbl_create_message(new_message, &created);
 
         if (result != ERR_OK) {
             printf("Failed to create message.\n");
@@ -131,7 +131,7 @@ void handle_message_create(json_t* json) {
 
         new_message.id = created.id;
         new_message.content = "Edited content";
-        result = edit_message(new_message, NULL);
+        result = bbl_edit_message(new_message, NULL);
 
         if (result != ERR_OK) {
             printf("Failed to edit message.\n");

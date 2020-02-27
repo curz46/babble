@@ -1,4 +1,5 @@
 - [x] Correct codestyle ('Message' should be 'message_t', 'char* a' should be 'char *a')
 - [x] Replace returned error codes (where a return value exists) with enum
-- [ ] Prepend user-facing functions with 'bbl_'
+- [x] Prepend user-facing functions with 'bbl_'
+- [ ] Move public API to include/
 - [ ] Event bus & library API

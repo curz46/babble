@@ -12,7 +12,7 @@
 #define format_route(URL, ROUTE, args...) \
     sprintf(URL, BASE ROUTE, args)
 
-int create_message(message_t message, message_t* created);
-int edit_message(message_t message, message_t* edited);
+int bbl_create_message(message_t message, message_t* created);
+int bbl_edit_message(message_t message, message_t* edited);
 
 #endif
