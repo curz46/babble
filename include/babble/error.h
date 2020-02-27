@@ -1,5 +1,5 @@
-#ifndef BABBLE_ERRNO
-#define BABBLE_ERRNO
+#ifndef BABBLE_ERROR_H
+#define BABBLE_ERROR_H
 
 typedef enum bbl_error_t {
     ERR_OK,

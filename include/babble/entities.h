@@ -1,5 +1,5 @@
-#ifndef BABBLE_ENTITIES
-#define BABBLE_ENTITIES
+#ifndef BABBLE_ENTITIES_H
+#define BABBLE_ENTITIES_H
 
 #include <stdbool.h>
 #include <jansson.h>

@@ -18,7 +18,7 @@
 int main() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
-    const CURL* curl = curl_easy_init();
+    CURL* curl = curl_easy_init();
     if (!curl) {
         printf("Failed to initialised curl!");
         exit(1);
@@ -53,7 +53,7 @@ int main() {
         exit(1);
     }
 
-    char* url = json_string_value( json_object_get(root, "url") );
+    const char* url = json_string_value( json_object_get(root, "url") );
 
     printf("URL: %s\n", url);
 

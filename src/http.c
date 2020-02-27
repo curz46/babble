@@ -6,17 +6,17 @@
 #include "http.h"
 #include "util.h"
 
-void set_writefunc(const CURL* curl, char** response) {
+void set_writefunc(CURL* curl, char** response) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_on_write);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
 }
 
-struct curl_slist* make_and_set_headers(const CURL* curl) {
+struct curl_slist* make_and_set_headers(CURL* curl) {
     struct curl_slist *headers = NULL;
 
     // Authorization
     char* token = getenv("TOKEN"); // TODO: Get from client
-    char* auth_header[1000];
+    char auth_header[1000];
     sprintf(auth_header, "Authorization: Bot %s", token);
     headers = curl_slist_append(headers, auth_header);
     // Content-Type
@@ -45,7 +45,7 @@ bbl_error_t handle_json(bbl_error_t result, char* received_body, json_t** respon
 }
 
 bbl_error_t do_http_get(char* method, char* url, char** response) {
-    const CURL* curl = curl_easy_init();
+    CURL* curl = curl_easy_init();
     if (!curl) {
         return ERR_REQUEST_CURL_INIT;
     }
@@ -85,7 +85,7 @@ bbl_error_t do_http_get_json(char* method, char* url, json_t** response) {
 }
 
 bbl_error_t do_http_post(char* method, char* url, char* body, char** response) {
-    const CURL* curl = curl_easy_init();
+    CURL* curl = curl_easy_init();
     if (!curl) {
         return ERR_REQUEST_CURL_INIT;
     }
@@ -144,7 +144,7 @@ bbl_error_t http_delete(char* url, char** response) {
 }
 
 bbl_error_t http_delete_json(char* url, json_t** response) {
-    return do_http_get("DELETE", url, response);
+    return do_http_get_json("DELETE", url, response);
 }
 
 bbl_error_t http_post(char* url, char* body, char** response) {

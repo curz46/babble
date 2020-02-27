@@ -1,6 +1,3 @@
-#include <stdbool.h>
-#include <jansson.h>
-
 #include "babble/error.h"
 #include "babble/routes.h"
 #include "babble/entities.h"
@@ -8,20 +5,17 @@
 #include "api.h"
 #include "http.h"
 #include "json.h"
+#include "util.h"
+
+#include <stdbool.h>
+#include <jansson.h>
+#include <string.h>
 
 #define format_route(URL, ROUTE, args...) \
     sprintf(URL, BASE ROUTE, args)
 
-bool str_array_contains(char* value, char* array[], int length) {
-    for (int i = 0; i < length; i++) {
-        char* candidate = array[i];
-        if (strcmp(value, candidate) == 0) return true;
-    }
-    return false;
-}
-
 void enforce_keys(json_t* json, char* keys[], int num_keys) {
-    char *key;
+    const char *key;
     void* tmp;
     json_t* value;
 

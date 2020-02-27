@@ -1,5 +1,5 @@
-#ifndef BABBLE_ROUTES
-#define BABBLE_ROUTES
+#ifndef BABBLE_ROUTES_H
+#define BABBLE_ROUTES_H
 
 #include "error.h"
 #include "entities.h"

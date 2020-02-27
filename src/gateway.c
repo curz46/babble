@@ -1,12 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <uwsc.h>
-#include <pthread.h>
-#include <jansson.h>
-
 #include "babble/error.h"
 #include "babble/entities.h"
 #include "babble/routes.h"
@@ -15,6 +6,17 @@
 #include "payload.h"
 #include "http.h"
 #include "json.h"
+#include "util.h"
+
+#include <uwsc.h>
+#include <pthread.h>
+#include <jansson.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <math.h>
 
 #define EV_LOOP EV_DEFAULT
 
@@ -76,10 +78,10 @@ void handle_ready(json_t* json) {
     json_t* user = json_object_get(json, "user");
     json_t* private_channels = json_object_get(json, "private_channels");
     json_t* guilds = json_object_get(json, "guilds");
-    char* session_id = json_string_value( json_object_get(json, "session_id") );
+    const char* session_id = json_string_value( json_object_get(json, "session_id") );
     json_t* shard = json_object_get(json, "shard");
 
-    context.session_id = session_id;
+    context.session_id = str_copy(session_id);
 
     printf("Received READY event with session id %s\n", session_id);
 }
@@ -144,7 +146,7 @@ void handle_message_create(json_t* json) {
 }
 
 // Is this necessarily READY? Need to double check...
-void handle_dispatch(char* event, json_t* json) { // "READY"
+void handle_dispatch(const char* event, json_t* json) { // "READY"
     if (event == NULL) {
         printf("ERROR: DISPATCH event == null\n");
         return;
@@ -161,18 +163,18 @@ void handle_dispatch(char* event, json_t* json) { // "READY"
     }
 }
 
-void handle_heartbeat(char* event, json_t* json) {
+void handle_heartbeat(const char* event, json_t* json) {
     send_heartbeat();
 }
 
-void handle_hello(char* event, json_t* json) {
+void handle_hello(const char* event, json_t* json) {
     int interval = json_integer_value( json_object_get(json, "heartbeat_interval") );
 
     context.heartbeat_interval = interval;
     context.sequence_number    = 0;
 
     send_heartbeat();
-    pthread_t *thread;
+    pthread_t* thread;
     pthread_create(&thread, NULL, do_heartbeat, NULL);
 
     char* token = getenv("TOKEN");
@@ -184,7 +186,7 @@ void handle_hello(char* event, json_t* json) {
     printf("Sent identify\n");
 }
 
-void handle_heartbeat_ack(char* event, json_t* json) {
+void handle_heartbeat_ack(const char* event, json_t* json) {
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     long now = round(spec.tv_nsec / 1.0e6);
@@ -192,7 +194,7 @@ void handle_heartbeat_ack(char* event, json_t* json) {
 }
 
 // array of handler functions
-const void (*handlers[]) (json_t* json) = {
+const void (*handlers[]) (const char* event, json_t* json) = {
     handle_dispatch,  // 0
     handle_heartbeat, // 1
     NULL,
@@ -211,9 +213,9 @@ void handle(char* data) {
     json_t* json = json_loads(data, 0, NULL);
     
     int opcode = json_integer_value( json_object_get(json, "op") );
-    int sequence_number = json_integer_value( json_object_get("json", "s") );
+    int sequence_number = json_integer_value( json_object_get(json, "s") );
     json_t* payload = json_object_get(json, "d");
-    char* event = json_string_value( json_object_get(json, "t") );
+    const char* event = json_string_value( json_object_get(json, "t") );
     
     // TODO: It appears that whenever this happens the JSON parser has failed.
     if (opcode == OP_DISPATCH && event == NULL) {
@@ -239,19 +241,6 @@ void handle(char* data) {
     handler(event, payload);
 }
 
-struct uwsc_client* gateway_open_connection(char* url) {
-    const int PING_INTERVAL = 10; // seconds
-    struct uwsc_client* client;
-    client = uwsc_new(EV_LOOP, url, PING_INTERVAL, NULL);
-
-    if (!client) {
-        fprintf(stderr, "Failed to establish gateway connection. Exiting...\n");
-        exit(1);
-    }
-
-    return client;
-}
-
 void gateway_onopen(struct uwsc_client* client) {}
 
 void gateway_onmessage(struct uwsc_client* client,
@@ -265,6 +254,20 @@ void gateway_onmessage(struct uwsc_client* client,
         handle(content);
     }
 }   
+
+
+struct uwsc_client* gateway_open_connection(const char* url) {
+    const int PING_INTERVAL = 10; // seconds
+    struct uwsc_client* client;
+    client = uwsc_new(EV_LOOP, url, PING_INTERVAL, NULL);
+
+    if (!client) {
+        fprintf(stderr, "Failed to establish gateway connection. Exiting...\n");
+        exit(1);
+    }
+
+    return client;
+}
 
 void gateway_init_loop(struct uwsc_client* client) {
     context.client = client;

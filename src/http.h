@@ -1,5 +1,5 @@
-#ifndef BABBLE_HTTP
-#define BABBLE_HTTP
+#ifndef BABBLE_HTTP_H
+#define BABBLE_HTTP_H
 
 #include <jansson.h>
 

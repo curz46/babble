@@ -1,10 +1,11 @@
-#include <stdbool.h>
-
-#include <jansson.h>
-
 #include "babble/entities.h"
 
 #include "json.h"
+
+#include <jansson.h>
+
+#include <stdbool.h>
+#include <string.h>
 
 /**
  * PARSE expands to a block of code that:
@@ -13,7 +14,7 @@
  */
 #define PARSE(C_TYPE, JSON_TYPE, NAME) { \
     json_t* property = json_object_get(json, #NAME); \
-    C_TYPE  value    = json_##JSON_TYPE##_value(property); \
+    C_TYPE  value    = (C_TYPE) json_##JSON_TYPE##_value(property); \
     object.NAME      = value; }
 
 /**
@@ -224,7 +225,13 @@ json_t* compose_emoji(emoji_t object) {
 }
 
 char* parse_string(json_t* json) {
-    return json_string_value(json);
+    // jansson documentation specifies that string will be destroyed when
+    // the json property that referenced it is freed. To prevent unexpected
+    // behaviour we should copy the string
+    const char* string = json_string_value(json);
+    char* copy = malloc((strlen(string) + 1) * sizeof(char));
+    strcpy(copy, string);
+    return copy;
 }
 
 json_t* compose_string(char* string) {
@@ -339,7 +346,7 @@ json_t* compose_presence(presence_t object) {
     Y(emoji_t, emojis, emoji) \
     Y(char*, features, string) \
     X(int, integer, mfa_level) \
-    X(int, integer, application_id) \
+    X(char*, string, application_id) \
     X(bool, boolean, widget_enabled) \
     X(char*, string, widget_channel_id) \
     X(char*, string, system_channel_id) \
