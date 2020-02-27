@@ -41,7 +41,7 @@ out/%.o: src/%.c
 	gcc -g3 $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c -o $@ $<
 
 .PHONY: test
-test: babble
+test: $(exe)
 	TOKEN=$(TOKEN) ./bin/babble
 
 .PHONY: vendor

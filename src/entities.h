@@ -18,7 +18,7 @@ typedef struct {
     char* email;
     int flags;
     int premium_type;
-} User;
+} user_t;
 
 typedef struct {
     char* id;
@@ -29,124 +29,124 @@ typedef struct {
     int permissions;
     bool managed;
     bool mentionable;
-} Role;
+} role_t;
 
 typedef struct {
     char* id;
     char* name;
-    Role* roles;
+    role_t* roles;
     int num_roles;
-    User user; //creator
+    user_t user; //creator
     bool require_colons;
     bool managed;
     bool animated;
-} Emoji;
+} emoji_t;
 
 typedef struct {
     int start;
     int end;
-} ActivityTimestamps;
+} activity_timestamps_t;
 
 typedef struct {
     char* id;
     int* size;
     int num_size;
-} ActivityParty;
+} activity_party_t;
 
 typedef struct {
     char* large_image;
     char* large_text;
     char* small_image;
     char* small_text;
-} ActivityAssets;
+} activity_assets_t;
 
 typedef struct {
     char* join;
     char* spectate;
     char* match;
-} ActivitySecrets;
+} activity_secrets_t;
 
 typedef struct {
     char* name;
     int type;
     char* url;
     int created_at;
-    ActivityTimestamps* timestamps;
+    activity_timestamps_t* timestamps;
     char* details;
     char* state;
-    Emoji emoji;
-    ActivityAssets* assets;
-    ActivitySecrets* secrets;
+    emoji_t emoji;
+    activity_assets_t* assets;
+    activity_secrets_t* secrets;
     bool instance;
     int flags;
-} Activity;
+} activity_t;
 
 typedef struct {
     char* desktop;
     char* mobile;
     char* web;
-} ClientStatus;
+} client_status_t;
 
 typedef struct {
-    User user;
-    Role* roles;
+    user_t user;
+    role_t* roles;
     int num_roles;
-    Activity game;
-    long guild_id;
+    activity_t game;
+    char* guild_id;
     char* status;
-    Activity* activities;
+    activity_t* activities;
     int num_activities;
-    ClientStatus client_status;
-    long premium_since;
+    client_status_t client_status;
+    int premium_since;
     char* nick;
-} Presence;
+} presence_t;
 
 typedef struct {
     char* id;
     char* type;
     int allow;
     int deny;
-} Overwrite;
+} overwrite_t;
 
 typedef struct {
     char* id;
     int type;
-    long guild_id;
+    char* guild_id;
     int position;
-    Overwrite* permission_overwrites;
+    overwrite_t* permission_overwrites;
     int num_permission_overwrites;
     char* name;
     char* topic;
     bool nsfw;
-    long last_message_id;
+    char* last_message_id;
     int bitrate;
     int user_limit;
     int rate_limit_per_user;
-    User* recipients;
+    user_t* recipients;
     int num_recipients;
     char* icon;
     char* owner_id;
-    long application_id;
-    long parent_id;
-    long last_pin_timestamp;
-} Channel;
+    char* application_id;
+    char* parent_id;
+    int last_pin_timestamp;
+} channel_t;
 
 typedef struct {
-    User user;
+    user_t user;
     char* nick;
     char** roles;
     int num_roles;
-    long joined_at;
-    long premium_since;
+    int joined_at;
+    int premium_since;
     bool deaf;
     bool mute;
-} Member;
+} member_t;
 
 typedef struct {
-    long guild_id;
-    long channel_id;
-    long user_id;
-    Member* member;
+    char* guild_id;
+    char* channel_id;
+    char* user_id;
+    member_t* member;
     char* session_id;
     bool deaf;
     bool mute;
@@ -154,7 +154,7 @@ typedef struct {
     bool self_mute;
     bool self_stream;
     bool suppress;
-} VoiceState;
+} voice_state_t;
 
 typedef struct {
     char* id;      // offset=0 bytes
@@ -165,35 +165,35 @@ typedef struct {
     char* owner_id;
     int permissions;
     char* region;
-    long afk_channel_id;
-    long afk_timeout;
+    char* afk_channel_id;
+    int afk_timeout;
     bool embed_enabled;
-    long embed_channel_id;
+    char* embed_channel_id;
     int verification_level;
     int default_message_notifications;
     int explicit_content_filter;
-    Role* roles;
+    role_t* roles;
     int num_roles;
-    Emoji* emojis;
+    emoji_t* emojis;
     int num_emojis;
     char** features;
     int num_features;
     int mfa_level;
-    long application_id;
+    char* application_id;
     bool widget_enabled;
-    long widget_channel_id;
-    long system_channel_id;
-    long joined_at;
+    char* widget_channel_id;
+    char* system_channel_id;
+    int joined_at;
     bool large;
     bool unavailable;
     int member_count;
-    VoiceState* voice_states;
+    voice_state_t* voice_states;
     int num_voice_states;
-    Member* members;
+    member_t* members;
     int num_members;
-    Channel* channels;
+    channel_t* channels;
     int num_channels;
-    Presence* presences;
+    presence_t* presences;
     int num_presences;
     int max_presences;
     int max_members;
@@ -203,17 +203,17 @@ typedef struct {
     int premium_tier;
     int premium_subscription_count;
     char* preferred_locale;
-} Guild;
+} guild_t;
 
 typedef struct {
     char* code;
-    Guild* guild;
-    Channel* channel;
-    User target_user;
+    guild_t* guild;
+    channel_t* channel;
+    user_t target_user;
     int target_user_type;
     int approximate_presence_count;
     int approximate_member_count;
-} Invite;
+} invite_t;
 
 typedef struct {
     char* id;
@@ -222,49 +222,49 @@ typedef struct {
     bool optimal;
     bool deprecated;
     bool custom;
-} VoiceRegion;
+} voice_region_t;
 
 typedef struct {
     char* id;
     int type;
-    long guild_id;
-    long channel_id;
-    User user;
+    char* guild_id;
+    char* channel_id;
+    user_t user;
     char* name;
     char* avatar;
     char* token;
-} Webhook;
+} webhook_t;
 
 typedef struct {
     void* new_value;
     void* old_value;
     char* key;
-} AuditLogChange;
+} audit_log_change_t;
 
 typedef struct {
     char* delete_member_days;
     char* members_removed;
-    long channel_id;
-    long message_id;
+    char* channel_id;
+    char* message_id;
     char* count;
     char* id;
     char* type;
     char* role_name;
-} AuditLogEntryInfo;
+} audit_log_entry_info_t;
 
 typedef struct {
     char* target_id;
-    AuditLogChange* changes;
+    audit_log_change_t* changes;
     int num_changes;
-    long user_id;
+    char* user_id;
     char* id;
     int action_type;
-} AuditLogEntry;
+} audit_log_entry_t;
 
 typedef struct {
     char* id;
     char* name;
-} Account;
+} account_t;
 
 typedef struct {
     char* id;
@@ -272,24 +272,24 @@ typedef struct {
     char* type;
     bool enabled;
     bool syncing;
-    long role_id;
+    char* role_id;
     int expire_behavior;
     int expire_grace_period;
-    User user;
-    Account account;
-    long synced_at;
-} Integration;
+    user_t user;
+    account_t account;
+    int synced_at;
+} integration_t;
 
 typedef struct {
-    Webhook* webhooks;
+    webhook_t* webhooks;
     int num_webhooks;
-    User* users;
+    user_t* users;
     int num_users;
-    AuditLogEntry* entries;
+    audit_log_entry_t* entries;
     int num_entries;
-    Integration* integrations;
+    integration_t* integrations;
     int num_integrations;
-} AuditLog;
+} audit_log_t;
 
 typedef struct {
     char* id;
@@ -299,86 +299,86 @@ typedef struct {
     char* proxy_url;
     int height;
     int width;
-} Attachment;
+} attachment_t;
 
 typedef struct {
     char* text;
     char* icon_url;
     char* proxy_icon_url;
-} EmbedFooter;
+} embed_footer_t;
 
 typedef struct {
     char* url;
     char* proxy_url;
     int height;
     int width;
-} EmbedImage;
+} embed_image_t;
 
 typedef struct {
     char* url;
     char* proxy_url;
     int height;
     int width;
-} EmbedThumbnail;
+} embed_thumbnail_t;
 
 typedef struct {
     char* url;
     int height;
     int width;
-} EmbedVideo;
+} embed_video_t;
 
 typedef struct {
     char* name;
     char* url;
-} EmbedProvider;
+} embed_provider_t;
 
 typedef struct {
     char* name;
     char* url;
     char* icon_url;
     char* proxy_icon_url;
-} EmbedAuthor;
+} embed_author_t;
 
 typedef struct {
     char* name;
     char* value;
     bool is_inline;
-} EmbedField;
+} embed_field_t;
 
 typedef struct {
     char* title;
     char* type;
     char* description;
     char* url;
-    long timestamp;
+    int timestamp;
     int color;
-    EmbedFooter footer;
-    EmbedImage image;
-    EmbedThumbnail thumbnail;
-    EmbedVideo video;
-    EmbedProvider provider;
-    EmbedAuthor author;
-    EmbedField* fields;
+    embed_footer_t footer;
+    embed_image_t image;
+    embed_thumbnail_t thumbnail;
+    embed_video_t video;
+    embed_provider_t provider;
+    embed_author_t author;
+    embed_field_t* fields;
     int num_fields;
-} Embed;
+} embed_t;
 
 typedef struct {
     char* id;
     char* guild_id;
     int type;
     char* name;
-} ChannelMention;
+} channel_mention_t;
 
 typedef struct {
     int count;
     bool me;
-    Emoji emoji;
-} Reaction;
+    emoji_t emoji;
+} reaction_t;
 
 typedef struct {
     int ype;
     char* party_id;
-} MessageActivity;
+} message_activity_t;
 
 typedef struct {
     char* id;
@@ -386,99 +386,99 @@ typedef struct {
     char* description;
     char* icon;
     char* name;
-} MessageApplication;
+} message_application_t;
 
 typedef struct {
     char* message_id;
     char* channel_Id;
     char* guild_id;
-} MessageReference;
+} message_reference_t;
 
 typedef struct {
     char* id;
     char* channel_id;
     char* guild_id;
-    User author;
-    Member member;
+    user_t author;
+    member_t member;
     char* content;
-    long timestamp;
-    long edited_timestamp;
+    int timestamp;
+    int edited_timestamp;
     bool tts;
     bool mention_everyone;
-    User* mentions;
+    user_t* mentions;
     int num_mentions;
-    Role* mention_roles;
+    role_t* mention_roles;
     int num_mention_roles;
-    ChannelMention* mention_channels;
+    channel_mention_t* mention_channels;
     int num_mention_channels;
-    Attachment* attachments;
+    attachment_t* attachments;
     int num_attachments;
-    Embed* embeds;
+    embed_t* embeds;
     int num_embeds;
-    Reaction* reactions;
+    reaction_t* reactions;
     int num_reactions;
     int nonce;
     bool pinned;
     char* webhook_id;
     int type;
-    MessageActivity activity;
-    MessageApplication application;
-    MessageReference message_reference;
+    message_activity_t activity;
+    message_application_t application;
+    message_reference_t message_reference;
     int flags;
-} Message;
+} message_t;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Role parse_role(json_t* json);
-Emoji parse_emoji(json_t* json);
+role_t parse_role(json_t* json);
+emoji_t parse_emoji(json_t* json);
 char* parse_feature(json_t* json);
-Member parse_member(json_t* json);
-Channel parse_channel(json_t* json);
-Presence parse_presence(json_t* json);
-Guild parse_guild(json_t* json);
-json_t* compose_role(Role object);
-json_t* compose_emoji(Emoji object);
+member_t parse_member(json_t* json);
+channel_t parse_channel(json_t* json);
+presence_t parse_presence(json_t* json);
+guild_t parse_guild(json_t* json);
+json_t* compose_role(role_t object);
+json_t* compose_emoji(emoji_t object);
 json_t* compose_feature(char* object);
-json_t* compose_member(Member object);
-json_t* compose_channel(Channel object);
-json_t* compose_presence(Presence object);
-json_t* compose_guild(Guild object);
+json_t* compose_member(member_t object);
+json_t* compose_channel(channel_t object);
+json_t* compose_presence(presence_t object);
+json_t* compose_guild(guild_t object);
 
 // message
-Attachment parse_attachment(json_t* json);
-json_t* compose_attachment(Attachment object);
+attachment_t parse_attachment(json_t* json);
+json_t* compose_attachment(attachment_t object);
 
-EmbedFooter parse_embed_footer(json_t* json);
-EmbedImage parse_embed_image(json_t* json);
-EmbedThumbnail parse_embed_thumbnail(json_t* json);
-EmbedVideo parse_embed_video(json_t* json);
-EmbedProvider parse_embed_provider(json_t* json);
-EmbedAuthor parse_embed_author(json_t* json);
-EmbedField parse_embed_field(json_t* json);
-Embed parse_embed(json_t* json);
-json_t* compose_embed_footer(EmbedFooter object);
-json_t* compose_embed_image(EmbedImage object);
-json_t* compose_embed_thumbnail(EmbedThumbnail object);
-json_t* compose_embed_video(EmbedVideo object);
-json_t* compose_embed_provider(EmbedProvider object);
-json_t* compose_embed_author(EmbedAuthor object);
-json_t* compose_embed_field(EmbedField object);
-json_t* compose_embed(Embed object);
+embed_footer_t parse_embed_footer(json_t* json);
+embed_image_t parse_embed_image(json_t* json);
+embed_thumbnail_t parse_embed_thumbnail(json_t* json);
+embed_video_t parse_embed_video(json_t* json);
+embed_provider_t parse_embed_provider(json_t* json);
+embed_author_t parse_embed_author(json_t* json);
+embed_field_t parse_embed_field(json_t* json);
+embed_t parse_embed(json_t* json);
+json_t* compose_embed_footer(embed_footer_t object);
+json_t* compose_embed_image(embed_image_t object);
+json_t* compose_embed_thumbnail(embed_thumbnail_t object);
+json_t* compose_embed_video(embed_video_t object);
+json_t* compose_embed_provider(embed_provider_t object);
+json_t* compose_embed_author(embed_author_t object);
+json_t* compose_embed_field(embed_field_t object);
+json_t* compose_embed(embed_t object);
 
-ChannelMention parse_channel_mention(json_t* json);
-json_t* compose_channel_mention(ChannelMention object);
+channel_mention_t parse_channel_mention(json_t* json);
+json_t* compose_channel_mention(channel_mention_t object);
 
-Reaction parse_reaction(json_t* json);
-json_t* compose_reaction(Reaction object);
+reaction_t parse_reaction(json_t* json);
+json_t* compose_reaction(reaction_t object);
 
-MessageActivity parse_message_activity(json_t* json);
-MessageApplication parse_message_application(json_t* json);
-MessageReference parse_message_reference(json_t* json);
-json_t* compose_message_activity(MessageActivity object);
-json_t* compose_message_application(MessageApplication object);
-json_t* compose_message_reference(MessageReference object);
+message_activity_t parse_message_activity(json_t* json);
+message_application_t parse_message_application(json_t* json);
+message_reference_t parse_message_reference(json_t* json);
+json_t* compose_message_activity(message_activity_t object);
+json_t* compose_message_application(message_application_t object);
+json_t* compose_message_reference(message_reference_t object);
 
-Message parse_message(json_t* json);
-json_t* compose_message(Message object);
+message_t parse_message(json_t* json);
+json_t* compose_message(message_t object);
 
 #endif

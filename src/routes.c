@@ -25,7 +25,7 @@ void enforce_keys(json_t* json, char* keys[], int num_keys) {
     }
 }
 
-int create_message(Message message, Message* created) {
+int create_message(message_t message, message_t* created) {
     // TODO: need a more consistent solution
     char url[1000];
     format_route(url, CREATE_MESSAGE, message.channel_id);
@@ -45,7 +45,7 @@ int create_message(Message message, Message* created) {
     return result;
 }
 
-int edit_message(Message message, Message* edited) {
+int edit_message(message_t message, message_t* edited) {
     char url[1000];
     format_route(url, EDIT_MESSAGE, message.channel_id, message.id);
 
@@ -62,4 +62,4 @@ int edit_message(Message message, Message* edited) {
     }
 
     return result;
-}
+} 

@@ -82,26 +82,26 @@ void handle_ready(json_t* json) {
 }
 
 void handle_guild_create(json_t* json) {
-    Guild guild = parse_guild(json);
+    guild_t guild = parse_guild(json);
     for (int i = 0; i < guild.num_members; i++) {
-        Member member = guild.members[i];
+        member_t member = guild.members[i];
         if (member.user.bot)
-            printf("Member: %s\n", member.user.username);
+            printf("member_t: %s\n", member.user.username);
     }
 }
 
 void handle_message_create(json_t* json) {
-    Message message = parse_message(json);
+    message_t message = parse_message(json);
     printf("Received message:\n");
     printf("Content=%s\n", message.content);
     printf("Author=%s\n", message.author.username);
     printf("Channel=%s\n", message.channel_id);
 
     if (strcmp(message.content, "bb!test") == 0) {
-        Message new_message = {0};
+        message_t new_message = {0};
         new_message.channel_id = message.channel_id;
         new_message.content = "Hello, world!";
-        Message created_message = {0};
+        message_t created_message = {0};
         printf("Responding...\n");
         int result = create_message(new_message, &created_message);
 
@@ -117,10 +117,10 @@ void handle_message_create(json_t* json) {
     } else if (strcmp(message.content, "bb!edit") == 0) {
         int result;
 
-        Message new_message = {0};
+        message_t new_message = {0};
         new_message.channel_id = message.channel_id;
         new_message.content = "Original content";
-        Message created = {0};
+        message_t created = {0};
         result = create_message(new_message, &created);
 
         if (result != REQUEST_SUCCESS) {

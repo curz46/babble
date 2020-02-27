@@ -90,8 +90,8 @@
     X(int, integer, allow) \
     X(int, integer, deny)
 
-Overwrite parse_overwrite(json_t* json) {
-    Overwrite object;
+overwrite_t parse_overwrite(json_t* json) {
+    overwrite_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -102,7 +102,7 @@ Overwrite parse_overwrite(json_t* json) {
     return object;
 }
 
-json_t* compose_overwrite(Overwrite object) {
+json_t* compose_overwrite(overwrite_t object) {
     // TODO
     return json_object();
 }
@@ -121,8 +121,8 @@ json_t* compose_overwrite(Overwrite object) {
     X(int, integer, flags) \
     X(int, integer, premium_type)
 
-User parse_user(json_t* json) {
-    User object;
+user_t parse_user(json_t* json) {
+    user_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -133,18 +133,18 @@ User parse_user(json_t* json) {
     return object;
 }
 
-json_t* compose_user(User object) {
+json_t* compose_user(user_t object) {
     // TODO
     return json_object();
 }
 
 // TODO: cba rn
-Activity parse_activity(json_t* json) {
-    Activity object;
+activity_t parse_activity(json_t* json) {
+    activity_t object;
     return object;
 }
 
-json_t* compose_activity(Activity object) {
+json_t* compose_activity(activity_t object) {
     // TODO
     return json_object();
 }
@@ -154,8 +154,8 @@ json_t* compose_activity(Activity object) {
     X(char*, string, mobile) \
     X(char*, string, web)
 
-ClientStatus parse_client_status(json_t* json) {
-    ClientStatus object;
+client_status_t parse_client_status(json_t* json) {
+    client_status_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -166,7 +166,7 @@ ClientStatus parse_client_status(json_t* json) {
     return object;
 }
 
-json_t* compose_client_status(ClientStatus object) {
+json_t* compose_client_status(client_status_t object) {
     return json_object();
 }
 
@@ -180,8 +180,8 @@ json_t* compose_client_status(ClientStatus object) {
     X(bool, boolean, managed) \
     X(bool, boolean, mentionable)
  
-Role parse_role(json_t* json) {
-    Role object;
+role_t parse_role(json_t* json) {
+    role_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -192,21 +192,21 @@ Role parse_role(json_t* json) {
     return object;
 }
 
-json_t* compose_role(Role object) {
+json_t* compose_role(role_t object) {
     return json_object();
 }
 
 #define EMOJI_FIELDS \
     X(char*, string, id) \
     X(char*, string, name) \
-    Y(Role, roles, role) \
-    Z(User, user, user) \
+    Y(role_t, roles, role) \
+    Z(user_t, user, user) \
     X(bool, boolean, require_colons) \
     X(bool, boolean, managed) \
     X(bool, boolean, animated)
 
-Emoji parse_emoji(json_t* json) {
-    Emoji object;
+emoji_t parse_emoji(json_t* json) {
+    emoji_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -217,7 +217,7 @@ Emoji parse_emoji(json_t* json) {
     return object;
 }
 
-json_t* compose_emoji(Emoji object) {
+json_t* compose_emoji(emoji_t object) {
     return json_object();
 }
 
@@ -230,7 +230,7 @@ json_t* compose_string(char* string) {
 }
 
 #define MEMBER_FIELDS \
-    Z(User, user, user) \
+    Z(user_t, user, user) \
     X(char*, string, nick) \
     Y(char*, roles, string) \
     X(int, integer, joined_at) \
@@ -238,8 +238,8 @@ json_t* compose_string(char* string) {
     X(bool, boolean, deaf) \
     X(bool, boolean, mute)
 
-Member parse_member(json_t* json) {
-    Member object;
+member_t parse_member(json_t* json) {
+    member_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -250,7 +250,7 @@ Member parse_member(json_t* json) {
     return object;
 }
 
-json_t* compose_member(Member object) {
+json_t* compose_member(member_t object) {
     return json_object();
 }
 
@@ -259,7 +259,7 @@ json_t* compose_member(Member object) {
     X(int, integer, type) \
     X(char*, string, guild_id) \
     X(int, integer, position) \
-    Y(Overwrite, permission_overwrites, overwrite) \
+    Y(overwrite_t, permission_overwrites, overwrite) \
     X(char*, string, name) \
     X(char*, string, topic) \
     X(bool, boolean, nsfw) \
@@ -267,15 +267,15 @@ json_t* compose_member(Member object) {
     X(int, integer, bitrate) \
     X(int, integer, user_limit) \
     X(int, integer, rate_limit_per_user) \
-    Y(User, recipients, user) \
+    Y(user_t, recipients, user) \
     X(char*, string, icon) \
     X(char*, string, owner_id) \
     X(char*, string, application_id) \
     X(char*, string, parent_id) \
     X(int, integer, last_pin_timestamp)
 
-Channel parse_channel(json_t* json) {
-    Channel object;
+channel_t parse_channel(json_t* json) {
+    channel_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -286,23 +286,23 @@ Channel parse_channel(json_t* json) {
     return object;
 }
 
-json_t* compose_channel(Channel object) {
+json_t* compose_channel(channel_t object) {
     return json_object();
 }
 
 #define PRESENCE_FIELDS \
-    Z(User, user, user) \
-    Y(Role, roles, role) \
-    Z(Activity, game, activity) \
+    Z(user_t, user, user) \
+    Y(role_t, roles, role) \
+    Z(activity_t, game, activity) \
     X(char*, string, guild_id) \
     X(char*, string, status) \
-    Y(Activity, activities, activity) \
-    Z(ClientStatus, client_status, client_status) \
+    Y(activity_t, activities, activity) \
+    Z(client_status_t, client_status, client_status) \
     X(int, integer, premium_since) \
     X(char*, string, nick)
 
-Presence parse_presence(json_t* json) {
-    Presence object;
+presence_t parse_presence(json_t* json) {
+    presence_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -313,7 +313,7 @@ Presence parse_presence(json_t* json) {
     return object;
 }
 
-json_t* compose_presence(Presence object) {
+json_t* compose_presence(presence_t object) {
     return json_object();
 }
 
@@ -326,27 +326,27 @@ json_t* compose_presence(Presence object) {
     X(char*, string, owner_id) \
     X(int, integer, permissions) \
     X(char*, string, region) \
-    X(int, integer, afk_channel_id) \
+    X(char*, string, afk_channel_id) \
     X(int, integer, afk_timeout) \
     X(bool, boolean, embed_enabled) \
-    X(bool, boolean, embed_channel_id) \
+    X(char*, string, embed_channel_id) \
     X(int, integer, verification_level) \
     X(int, integer, default_message_notifications) \
     X(int, integer, explicit_content_filter) \
-    Y(Role, roles, role) \
-    Y(Emoji, emojis, emoji) \
+    Y(role_t, roles, role) \
+    Y(emoji_t, emojis, emoji) \
     Y(char*, features, string) \
     X(int, integer, mfa_level) \
     X(int, integer, application_id) \
     X(bool, boolean, widget_enabled) \
-    X(int, integer, widget_channel_id) \
-    X(int, integer, system_channel_id) \
+    X(char*, string, widget_channel_id) \
+    X(char*, string, system_channel_id) \
     X(int, integer, joined_at) \
     X(bool, boolean, large) \
     X(bool, boolean, unavailable) \
-    Y(Member, members, member) \
-    Y(Channel, channels, channel) \
-    Y(Presence, presences, presence) \
+    Y(member_t, members, member) \
+    Y(channel_t, channels, channel) \
+    Y(presence_t, presences, presence) \
     X(int, integer, member_count) \
     X(int, integer, max_presences) \
     X(int, integer, max_members) \
@@ -357,8 +357,8 @@ json_t* compose_presence(Presence object) {
     X(int, integer, premium_subscription_count) \
     X(char*, string, preferred_locale)
 
-Guild parse_guild(json_t* json) {
-    Guild object;
+guild_t parse_guild(json_t* json) {
+    guild_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -369,77 +369,77 @@ Guild parse_guild(json_t* json) {
     return object;
 }
 
-json_t* compose_guild(Guild object) {
+json_t* compose_guild(guild_t object) {
     return json_object();
 }
 
-ChannelMention parse_channel_mention(json_t* json) {
-    ChannelMention object;
+channel_mention_t parse_channel_mention(json_t* json) {
+    channel_mention_t object;
     // TODO
     return object;
 }
 
-json_t* compose_channel_mention(ChannelMention object) {
+json_t* compose_channel_mention(channel_mention_t object) {
     return json_object();
 }
 
-MessageActivity parse_message_activity(json_t* json) {
-    MessageActivity object;
+message_activity_t parse_message_activity(json_t* json) {
+    message_activity_t object;
     // TODO
     return object;
 }
 
-json_t* compose_message_activity(MessageActivity object) {
+json_t* compose_message_activity(message_activity_t object) {
     return json_object();
 }
 
-MessageApplication parse_message_application(json_t* json) {
-    MessageApplication object;
+message_application_t parse_message_application(json_t* json) {
+    message_application_t object;
     // TODO
     return object;
 }
 
-json_t* compose_message_application(MessageApplication object) {
+json_t* compose_message_application(message_application_t object) {
     return json_object();
 }
 
-MessageReference parse_message_reference(json_t* json) {
-    MessageReference object;
+message_reference_t parse_message_reference(json_t* json) {
+    message_reference_t object;
     // TODO
     return object;
 }
 
-json_t* compose_message_reference(MessageReference object) {
+json_t* compose_message_reference(message_reference_t object) {
     return json_object();
 }
 
-Embed parse_embed(json_t* json) {
-    Embed object;
+embed_t parse_embed(json_t* json) {
+    embed_t object;
     // TODO
     return object;
 }
 
-json_t* compose_embed(Embed object) {
+json_t* compose_embed(embed_t object) {
     return json_object();
 }
 
-Attachment parse_attachment(json_t* json) {
-    Attachment object;
+attachment_t parse_attachment(json_t* json) {
+    attachment_t object;
     // TODO
     return object;
 }
 
-json_t* compose_attachment(Attachment object) {
+json_t* compose_attachment(attachment_t object) {
     return json_object();
 }
 
-Reaction parse_reaction(json_t* json) {
-    Reaction object;
+reaction_t parse_reaction(json_t* json) {
+    reaction_t object;
     // TODO
     return object;
 }
 
-json_t* compose_reaction(Reaction object) {
+json_t* compose_reaction(reaction_t object) {
     return json_object();
 }
 
@@ -447,30 +447,30 @@ json_t* compose_reaction(Reaction object) {
     X(char*, string, id) \
     X(char*, string, channel_id) \
     X(char*, string, guild_id) \
-    Z(User, author, user) \
-    Z(Member, member, member) \
+    Z(user_t, author, user) \
+    Z(member_t, member, member) \
     X(char*, string, content) \
     X(long, integer, timestamp) \
     X(long, integer, edited_timestamp) \
     X(bool, boolean, tts) \
     X(bool, boolean, mention_everyone) \
-    Y(User, mentions, user) \
-    Y(Role, mention_roles, role) \
-    Y(ChannelMention, mention_channels, channel_mention) \
-    Y(Attachment, attachments, attachment) \
-    Y(Embed, embeds, embed) \
-    Y(Reaction, reactions, reaction) \
+    Y(user_t, mentions, user) \
+    Y(role_t, mention_roles, role) \
+    Y(channel_mention_t, mention_channels, channel_mention) \
+    Y(attachment_t, attachments, attachment) \
+    Y(embed_t, embeds, embed) \
+    Y(reaction_t, reactions, reaction) \
     X(int, integer, nonce) \
     X(bool, boolean, pinned) \
     X(char*, string, webhook_id) \
     X(int, integer, type) \
-    Z(MessageActivity, activity, message_activity) \
-    Z(MessageApplication, application, message_application) \
-    Z(MessageReference, message_reference, message_reference) \
+    Z(message_activity_t, activity, message_activity) \
+    Z(message_application_t, application, message_application) \
+    Z(message_reference_t, message_reference, message_reference) \
     X(int, integer, flags)
 
-Message parse_message(json_t* json) {
-    Message object;
+message_t parse_message(json_t* json) {
+    message_t object;
     #define X(C_TYPE, JSON_TYPE, NAME) PARSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, PARSER) PARSE_OBJECT_ARRAY(C_TYPE, NAME, PARSER)
     #define Z(C_TYPE, NAME, PARSER) PARSE_OBJECT(C_TYPE, NAME, PARSER)
@@ -481,7 +481,7 @@ Message parse_message(json_t* json) {
     return object;
 }
 
-json_t* compose_message(Message object) {
+json_t* compose_message(message_t object) {
     json_t* json = json_object();
     #define X(C_TYPE, JSON_TYPE, NAME) COMPOSE(C_TYPE, JSON_TYPE, NAME)
     #define Y(C_TYPE, NAME, COMPOSER) COMPOSE_OBJECT_ARRAY(C_TYPE, NAME, COMPOSER)
